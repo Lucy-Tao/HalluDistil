@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pt
+*.pkl
+*.bin
+*.safetensors
+wandb/
+.ipynb_checkpoints/
+simple_evals/
+logs/
+*.log
