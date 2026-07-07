@@ -592,7 +592,7 @@ def _run_simpleqa_visualization(question_idx: int = 0,
             n_samples=cfg.num_semantic_samples,
             temperature=cfg.semantic_sample_temperature,
             max_new_tokens=cfg.semantic_max_new_tokens,
-            threshold=cfg.entailment_threshold,
+            strict_entailment=cfg.strict_entailment,
             fixed_response=fixed_response,
             judge_backend=cfg.entailment_backend,
             question=item["question"],
@@ -614,7 +614,7 @@ def _run_simpleqa_visualization(question_idx: int = 0,
         from semantic_utils import cluster_by_entailment, compute_semantic_distribution
         clusters = cluster_by_entailment(
             record["raw_responses"], nli_model, nli_tokenizer,
-            cfg.entailment_threshold,
+            cfg.strict_entailment,
             backend=cfg.entailment_backend,
             question=item["question"],
         )

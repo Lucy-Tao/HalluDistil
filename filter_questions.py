@@ -12,13 +12,11 @@ Phase A — scan (`--mode scan`):
     2. Sample --n_high_temp_samples MORE responses at T=1.0, combined
        with the low-temp answer via get_semantic_entropy's fixed_response
        mechanism (default 9, so 10 total) -> semantic entropy via
-       bidirectional entailment clustering. The low-temp answer is one of
-       the 10 entropy samples, not a separate, wasted 11th generation.
+       bidirectional entailment clustering.
     3. Judge correctness: does the low-temp answer match gold?
   This is fully symmetric for teacher and base student. The teacher's
   low-temp answer additionally serves as the distillation training
   target later (see distill.py's build_dataset_from_filtered_questions())
-  — no separate generation needed for that.
 
   Then, for one or more semantic-entropy thresholds, find the question
   indices where BOTH teacher and base student have semantic_entropy >=
@@ -208,7 +206,7 @@ def scan_model(
                 n_samples=n_high_temp_samples + 1,
                 temperature=1.0,
                 max_new_tokens=cfg.semantic_max_new_tokens,
-                threshold=cfg.entailment_threshold,
+                strict_entailment=cfg.strict_entailment,
                 fixed_response=low_temp_response,
                 judge_backend=cfg.entailment_backend,
                 question=item["question"],
@@ -217,7 +215,7 @@ def scan_model(
             gold = item.get("answer", "")
             is_correct = judge_correctness(
                 nli_model, nli_tokenizer, item["question"], gold, low_temp_response,
-                backend=cfg.entailment_backend, threshold=cfg.entailment_threshold,
+                backend=cfg.entailment_backend,
             )
 
             rec = {
@@ -524,7 +522,7 @@ def run_scan(args):
             "n_prompts":            len(items),
             "n_high_temp_samples":  args.n_high_temp_samples,
             "judge_backend":        cfg.entailment_backend,
-            "entailment_threshold": cfg.entailment_threshold,
+            "strict_entailment":    cfg.strict_entailment,
         },
         "thresholds":      thresh_results,
         "teacher_records": teacher_records,
@@ -737,7 +735,7 @@ def rejudge_records(
     nli_model,
     nli_tokenizer,
     judge_backend: str,
-    threshold: float,
+    strict_entailment: bool,
 ) -> list[dict]:
     """
     Re-cluster each record's already-sampled raw_responses with a new
@@ -751,7 +749,7 @@ def rejudge_records(
     new_records = []
     for r in records:
         clusters = cluster_by_entailment(
-            r["raw_responses"], nli_model, nli_tokenizer, threshold,
+            r["raw_responses"], nli_model, nli_tokenizer, strict_entailment,
             backend=judge_backend, question=r["question"],
         )
         dist = compute_semantic_distribution(r["raw_responses"], clusters)
@@ -796,12 +794,12 @@ def run_rejudge(args):
     print("\nRe-clustering teacher records...")
     teacher_records = rejudge_records(
         scan_data["teacher_records"], nli_model, nli_tokenizer,
-        cfg.entailment_backend, cfg.entailment_threshold,
+        cfg.entailment_backend, cfg.strict_entailment,
     )
     print("Re-clustering base student records...")
     student_records = rejudge_records(
         scan_data["student_records"], nli_model, nli_tokenizer,
-        cfg.entailment_backend, cfg.entailment_threshold,
+        cfg.entailment_backend, cfg.strict_entailment,
     )
 
     thresh_results = filter_high_entropy_questions(

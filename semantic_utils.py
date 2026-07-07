@@ -79,7 +79,6 @@ Public API
 from __future__ import annotations
 
 import torch
-import torch.nn.functional as F
 
 from config import cfg
 
@@ -290,7 +289,11 @@ def _get_entailment_prob_llm(
     )
     new_ids  = output_ids[0][inputs["input_ids"].shape[1]:]
     response = judge_tokenizer.decode(new_ids, skip_special_tokens=True).strip().lower()
-    return 1.0 if "entailment" in response else 0.0
+    if "entailment" in response:
+        return 2
+    if "contradiction" in response:
+        return 0
+    return 1
 
 
 def get_entailment_prob(
@@ -334,7 +337,7 @@ def get_entailment_prob(
     # what is a common case (repeated sampling often produces the exact
     # same short answer multiple times).
     if premise.strip() == hypothesis.strip():
-        return 1.0
+        return 2
 
     if backend == "llm":
         if question is None:
@@ -353,9 +356,8 @@ def get_entailment_prob(
             premise, hypothesis, return_tensors="pt", truncation=True
         ).to(nli_model.device)
         with torch.no_grad():
-            logits = nli_model(**inputs).logits[0]   # [3] = [contradiction, neutral, entailment]
-        probs = F.softmax(logits, dim=-1)
-        return float(probs[2])   # entailment is index 2 for deberta-large-mnli
+            logits = nli_model(**inputs).logits[0]
+        return int(torch.argmax(logits).item())
 
     raise ValueError(f"Unknown backend: {backend!r}. Use 'deberta' or 'llm'.")
 
@@ -368,17 +370,12 @@ def cluster_by_entailment(
     responses: list[str],
     nli_model,
     nli_tokenizer,
-    threshold: float = 0.5,
+    strict_entailment: bool = True,
     backend: str = "deberta",
     question: str | None = None,
 ) -> list[list[int]]:
     """
     Partition response indices into semantic clusters.
-
-    Two responses i and j are merged into the same cluster only if BOTH
-    directions of entailment hold:
-        P(response_i -> response_j) > threshold   AND
-        P(response_j -> response_i) > threshold
 
     Algorithm: greedy union — for each response, check it against the
     first member of every existing cluster; if bidirectional entailment
@@ -391,7 +388,7 @@ def cluster_by_entailment(
         responses    : list of N sampled response strings.
         nli_model    : loaded judge model (see load_nli_model / load_local_llm_judge).
         nli_tokenizer: matching tokenizer.
-        threshold    : entailment probability threshold (default 0.5).
+        strict_entailment: when True, only merge responses if both directions of entailment hold.
         backend      : "deberta" (default) or "llm" — see module docstring.
         question     : required when backend="llm" (question-conditioned
             entailment prompt); ignored for backend="deberta".
@@ -413,16 +410,22 @@ def cluster_by_entailment(
             j       = cluster[0]
             resp_j  = responses[j]
 
-            p_i_to_j = get_entailment_prob(
+            implication_1 = get_entailment_prob(
                 nli_model, nli_tokenizer, resp_i, resp_j,
                 backend=backend, question=question,
             )
-            p_j_to_i = get_entailment_prob(
+            implication_2 = get_entailment_prob(
                 nli_model, nli_tokenizer, resp_j, resp_i,
                 backend=backend, question=question,
             )
 
-            if p_i_to_j > threshold and p_j_to_i > threshold:
+            if strict_entailment:
+                equivalent = (implication_1 == 2) and (implication_2 == 2)
+            else:
+                implications = [implication_1, implication_2]
+                equivalent = (0 not in implications) and ([1, 1] != implications)
+
+            if equivalent:
                 cluster.append(i)
                 placed = True
                 break
@@ -540,7 +543,7 @@ def get_semantic_entropy(
     n_samples: int = 5,
     temperature: float = 1.0,
     max_new_tokens: int = 30,
-    threshold: float = 0.5,
+    strict_entailment: bool = True,
     fixed_response: str | None = None,
     judge_backend: str = "deberta",
     question: str | None = None,
@@ -605,7 +608,7 @@ def get_semantic_entropy(
         fixed_idx = None
 
     clusters = cluster_by_entailment(
-        responses, nli_model, nli_tokenizer, threshold,
+        responses, nli_model, nli_tokenizer, strict_entailment,
         backend=judge_backend, question=question,
     )
     result   = compute_semantic_distribution(responses, clusters)
@@ -722,7 +725,6 @@ def judge_correctness(
     reference_answer: str,
     predicted_answer: str,
     backend: str = "deberta",
-    threshold: float = 0.5,
 ) -> bool:
     """
     Backend-dispatching correctness judge — the correctness-checking
@@ -738,7 +740,7 @@ def judge_correctness(
             predicted_answer and reference_answer, matching the original
             Kuhn et al. (2023) protocol used in this codebase's previous
             compute_auroc.py: correct only if BOTH directions entail.
-        threshold: only used for backend="deberta".
+        strict_entailment: only used for backend="deberta".
 
     Returns:
         bool — True if predicted_answer is judged correct.
@@ -749,14 +751,14 @@ def judge_correctness(
         )
 
     if backend == "deberta":
-        p_pred_to_gold = get_entailment_prob(
+        implication_pred_to_gold = get_entailment_prob(
             judge_model, judge_tokenizer, predicted_answer, reference_answer,
             backend="deberta",
         )
-        p_gold_to_pred = get_entailment_prob(
+        implication_gold_to_pred = get_entailment_prob(
             judge_model, judge_tokenizer, reference_answer, predicted_answer,
             backend="deberta",
         )
-        return p_pred_to_gold > threshold and p_gold_to_pred > threshold
+        return implication_pred_to_gold == 2 and implication_gold_to_pred == 2
 
     raise ValueError(f"Unknown backend: {backend!r}. Use 'deberta' or 'llm'.")

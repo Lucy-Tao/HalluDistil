@@ -12,12 +12,9 @@ from dataclasses import dataclass
 class Config:
 
     # ── Models ────────────────────────────────────────────────────────────
-    # Smoke-test pair (fits on a single A100 40GB):
+    # Main experiment pair (fits on a single A100 40GB):
     teacher_model_name: str  = "Qwen/Qwen3-14B"
     student_model_name: str  = "Qwen/Qwen3-4B-Instruct-2507"
-    # Full-experiment pair (requires 2-4x 80GB GPUs):
-    # teacher_model_name: str = "Qwen/Qwen3-32B"
-    # student_model_name: str = "Qwen/Qwen3-7B"
 
     distilled_model_path: str = "./checkpoints/distilled_student"
 
@@ -28,7 +25,7 @@ class Config:
     # Backward compat         : "truthfulqa"— saturates for strong models
     # Phase 2                 : "simpleqa" — open-ended, semantic clustering
     dataset: str          = "simpleqa"   # "truthfulqa" | "simpleqa"
-    num_train_samples: int = 500           # number of prompts used for distillation
+    num_train_samples: int = 500           # number of prompts used for distillation, overridden by run.py --n_samples for full-dataset runs
 
     # ── Distillation (SeqKD / off-policy SFT) ────────────────────────────
     num_epochs: int                  = 3
@@ -53,8 +50,7 @@ class Config:
 
     # ── Semantic Entropy (Phase 2 — SimpleQA only) ──────────────────────
     # Number of responses sampled per prompt for semantic clustering.
-    # Farquhar et al. (2024) use N=10; we start with N=5 for the pilot
-    # experiment to keep generation + NLI clustering time manageable.
+    # Farquhar et al. (2024) use N=10
     num_semantic_samples: int = 10
 
     # NLI model used to judge bidirectional entailment between two sampled
@@ -79,13 +75,12 @@ class Config:
     # judges (e.g. "Qwen/Qwen2.5-14B-Instruct", "Qwen/Qwen2.5-7B-Instruct").
     entailment_llm_model_name: str = "Qwen/Qwen2.5-14B-Instruct"
 
-    # Probability threshold above which the judge's "entailment" answer is
-    # considered to hold. 0.5 is the standard default for the old NLI
-    # classifier's softmax output — re-check this against a few known
-    # same-answer / different-answer response pairs after switching judges,
-    # since an LLM-based judge's calibration may differ from the dedicated
-    # NLI classifier's.
-    entailment_threshold: float = 0.5
+    # When True, two responses are merged into the same semantic cluster only if
+    # each entails the other (standard semantic entropy protocol). When False,
+    # two responses are merged if either entails the other (more permissive,
+    # but less semantically rigorous). See semantic_utils.py module docstring
+    # for details and how to compare judges.
+    strict_entailment: bool = True
 
     # Sampling temperature used when generating the N responses for semantic
     # clustering. This is intentionally separate from cfg.temperature (used
