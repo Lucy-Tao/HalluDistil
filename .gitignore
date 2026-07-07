@@ -216,3 +216,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+*.pt
+*.pkl
+*.bin
+*.safetensors
+wandb/
+.ipynb_checkpoints/
