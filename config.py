@@ -25,6 +25,7 @@ class Config:
     # Backward compat         : "truthfulqa"— saturates for strong models
     # Phase 2                 : "simpleqa" — open-ended, semantic clustering
     dataset: str          = "simpleqa"   # "truthfulqa" | "simpleqa"
+    prompt_style: str = "fewshot"   # "strict" | "fewshot"
     num_train_samples: int = 500           # number of prompts used for distillation, overridden by run.py --n_samples for full-dataset runs
 
     # ── Distillation (SeqKD / off-policy SFT) ────────────────────────────
@@ -57,7 +58,7 @@ class Config:
     # responses, when entailment_backend == "deberta" (see below). Two
     # responses are merged into the same semantic cluster only if each
     # entails the other (standard semantic entropy protocol).
-    nli_model_name: str = "microsoft/deberta-large-mnli"
+    nli_model_name: str = "microsoft/deberta-v2-xlarge-mnli"
 
     # ── Entailment judge backend ────────────────────────────────────────
     # "deberta" : microsoft/deberta-large-mnli (nli_model_name above) — the
@@ -72,8 +73,7 @@ class Config:
     entailment_backend: str = "llm"   # "deberta" | "llm"
 
     # Used only when entailment_backend == "llm". Swap this to compare
-    # judges (e.g. "Qwen/Qwen2.5-14B-Instruct", "Qwen/Qwen2.5-7B-Instruct").
-    entailment_llm_model_name: str = "Qwen/Qwen2.5-14B-Instruct"
+    entailment_llm_model_name: str = "Qwen/Qwen2.5-32B-Instruct"
 
     # When True, two responses are merged into the same semantic cluster only if
     # each entails the other (standard semantic entropy protocol). When False,
@@ -89,7 +89,7 @@ class Config:
 
     # Max new tokens for each sampled response. Short because prompts ask
     # for "a short phrase only, no explanation."
-    semantic_max_new_tokens: int = 30
+    semantic_max_new_tokens: int = 50
 
     # ── Hardware ──────────────────────────────────────────────────────────
     # "auto" distributes the model across all visible GPUs automatically.

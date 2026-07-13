@@ -295,27 +295,66 @@ def _load_mmlu_pro(num_samples: int,
 
 # ── SimpleQA ──────────────────────────────────────────────────────────────────
 
+_SIMPLEQA_N_FEWSHOT = 5
+
+_STRICT_PROMPT_TEMPLATE = (
+    "Question: {question}\n"
+    "Answer the question with only the minimal factual answer string.\n"
+    "Do not write a full sentence.\n"
+    "Do not include explanations, context, hedging, or punctuation.\n"
+    "Do not start with phrases like 'The answer is' or 'It is'.\n"
+    "Use the most common valid form of the answer.\n"
+    "Answer:"
+)
+
+
+def _build_simpleqa_fewshot_prefix(ds) -> str:
+    """
+    5 (question, answer) pairs pulled from the LAST _SIMPLEQA_N_FEWSHOT rows
+    of the dataset — disjoint from every row _load_simpleqa() actually uses
+    as a teacher/student question (it only iterates over
+    ds[:-_SIMPLEQA_N_FEWSHOT]). HuggingFace's load_dataset for split="test"
+    returns rows in a fixed order (no shuffling), so this is deterministic
+    across calls: teacher and student — and any future rerun — all get the
+    exact same 5 examples without needing to persist a random seed.
+    """
+    tail = list(ds)[-_SIMPLEQA_N_FEWSHOT:]
+    prefix = "Answer the following question as briefly as possible.\n\n"
+    for row in tail:
+        prefix += f"Question: {row['problem']}\nAnswer: {row['answer']}\n\n"
+    return prefix
+
+
 def _load_simpleqa(num_samples: int) -> list[dict]:
     """
     Load SimpleQA from HuggingFace.
 
     Dataset : basicv8vc/SimpleQA, split=test
-    Size    : 4326 short factual questions with a unique correct answer
+    Size    : 4326 short factual questions with a unique correct answer.
+              The last _SIMPLEQA_N_FEWSHOT=5 rows are ALWAYS reserved
+              (regardless of cfg.prompt_style) and never used as an actual
+              teacher/student question — so the usable pool is 4321, not
+              4326. This is deliberate even for "strict" (which doesn't
+              need a few-shot pool at all): keeping the same question set
+              under both prompt styles means a strict-vs-fewshot
+              comparison isn't confounded by also comparing different
+              questions.
     Fields  : "problem" (question string)
 
-    This is the Phase 2 dataset.  There are no fixed answer labels, so
-    "choices" is an empty list.  Instead of a single forward-pass token
-    distribution, visualize.py samples multiple complete responses per
-    prompt and clusters them by semantic meaning (semantic entropy).
-
-    The prompt asks for a short phrase only, no explanation.  This keeps
-    sampled responses short and clean, which makes the NLI-based semantic
-    clustering step in semantic_utils.py more reliable — long, rambling
-    answers are harder to judge as "the same answer" via entailment.
+    Prompt (cfg.prompt_style, set via config.py or --prompt_style CLI flag):
+      "fewshot" (default) — Farquhar et al. (2024) / Kossen et al.
+          (2024)'s short-phrase template: "answer briefly" instruction +
+          5 few-shot (question, answer) pairs + the real question.
+      "strict" — the original zero-shot, many-negative-constraints
+          instruction (no few-shot). Kept available for direct comparison
+          against "fewshot" on the identical 4321-question set — see
+          conversation history for why "fewshot" is otherwise preferred
+          (measurably better accuracy at similar-or-better format
+          compliance, on the samples tested so far).
 
     Return format per item:
         {
-          "prompt"  : str   question + answer-only instruction
+          "prompt"  : str   the fully-constructed prompt for this question
           "choices" : []    empty — open-ended generation, no fixed labels
           "question": str   raw question text (instruction-free, for display)
           "answer"  : str   the reference (gold) answer string, used by
@@ -323,31 +362,34 @@ def _load_simpleqa(num_samples: int) -> list[dict]:
         }
     """
     from datasets import load_dataset
+    from config import cfg
 
-    print(f"Loading SimpleQA — {num_samples} samples...")
+    print(f"Loading SimpleQA — {num_samples} samples (prompt_style={cfg.prompt_style!r})...")
     ds = load_dataset("basicv8vc/SimpleQA", split="test")
 
+    if cfg.prompt_style == "fewshot":
+        fewshot_prefix = _build_simpleqa_fewshot_prefix(ds)
+        usable_rows = list(ds)[:-_SIMPLEQA_N_FEWSHOT]
+    elif cfg.prompt_style == "strict":
+        fewshot_prefix = None
+        usable_rows = list(ds)
+    else:
+        raise ValueError(
+            f"Unknown cfg.prompt_style: {cfg.prompt_style!r}. Use 'strict' or 'fewshot'."
+        )
+
+    if num_samples > len(usable_rows):
+        print(f"  WARNING: requested {num_samples} samples but only "
+              f"{len(usable_rows)} are available — returning "
+              f"{len(usable_rows)} items instead.")
+
     items = []
-    for row in ds:
+    for row in usable_rows:
         question = row["problem"]
-        # Instruct the model to answer with a short phrase only.
-        # This concentrates the sampled responses into clean, comparable
-        # short answers instead of full sentences with explanations.
-        # prompt = (
-        #     f"Question: {question}\n"
-        #     f"Answer with a short phrase only, no explanation.\nAnswer:"
-        # )
-        prompt = (
-                # f"Answer the following question as briefly as possible.\n"
-                f"Question: {question}\n"
-                f"Answer the question with only the minimal factual answer string.\n"
-                f"Do not write a full sentence.\n"
-                f"Do not include explanations, context, hedging, or punctuation.\n"
-                f"Do not start with phrases like 'The answer is' or 'It is'.\n"
-                f"Use the most common valid form of the answer.\n"
-                # f"If the answer cannot be determined, output Unknown.\n"
-                f"Answer:"
-            )
+        if cfg.prompt_style == "fewshot":
+            prompt = fewshot_prefix + f"Question: {question}\nAnswer:"
+        else:   # "strict"
+            prompt = _STRICT_PROMPT_TEMPLATE.format(question=question)
         items.append({
             "prompt":   prompt,
             "choices":  [],
@@ -358,5 +400,5 @@ def _load_simpleqa(num_samples: int) -> list[dict]:
             break
 
     print(f"  Loaded {len(items)} SimpleQA items.")
-    print(f"  Example prompt:\n    {items[0]['prompt']}")
+    print(f"  Example prompt:\n{items[0]['prompt']}")
     return items

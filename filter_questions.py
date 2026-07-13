@@ -914,6 +914,11 @@ def main():
                              "run only. Only used when the active "
                              "entailment_backend is 'llm' (either from this "
                              "flag or from config.py).")
+    parser.add_argument("--prompt_style", type=str, default=None,
+                        choices=["strict", "fewshot"],
+                        help="Override cfg.prompt_style for this run only "
+                             "(doesn't touch config.py). Controls which "
+                             "SimpleQA prompt template data_utils.py uses.")
 
     args = parser.parse_args()
 
@@ -925,6 +930,8 @@ def main():
         cfg.entailment_backend = args.entailment_backend
     if args.entailment_llm_model_name is not None:
         cfg.entailment_llm_model_name = args.entailment_llm_model_name
+    if args.prompt_style is not None:
+        cfg.prompt_style = args.prompt_style
 
     if args.mode == "scan":
         run_scan(args)
