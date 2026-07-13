@@ -78,10 +78,13 @@ Public API
 
 from __future__ import annotations
 
+import re
+
 import torch
 
 from config import cfg
 
+DEFAULT_STOP_SEQUENCES = ["\n\n\n\n", "\n\n\n", "\n\n", "\n", "Question:", "Context:"]
 
 # ══════════════════════════════════════════════════════════════
 # Step 1 — Sample N complete responses
@@ -94,7 +97,8 @@ def sample_responses(
     prompt: str,
     n_samples: int,
     temperature: float = 1.0,
-    max_new_tokens: int = 30,
+    max_new_tokens: int = 50,
+    stop_sequences: list[str] | None = DEFAULT_STOP_SEQUENCES,
 ) -> list[str]:
     """
     Generate n_samples complete responses to the same prompt via repeated
@@ -124,13 +128,6 @@ def sample_responses(
     """
     model.eval()
     messages = [{"role": "user", "content": prompt}]
-    # enable_thinking=False disables Qwen3's <think>...</think> reasoning
-    # block. Without this, sampled responses are dominated by reasoning
-    # text rather than the actual short-phrase answer, which corrupts the
-    # semantic clustering step (responses look spuriously similar because
-    # they're all truncated mid-reasoning, not because the model agrees
-    # on the answer). See prob_utils._build_prompt_text for the same fix
-    # applied to the MCQ path.
     try:
         text = tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True,
@@ -143,17 +140,29 @@ def sample_responses(
     inputs     = tokenizer(text, return_tensors="pt").to(model.device)
     prompt_len = inputs["input_ids"].shape[1]
 
+    generate_kwargs = dict(
+        max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        do_sample=(temperature > 0),
+        pad_token_id=tokenizer.pad_token_id,
+        renormalize_logits=True,
+        top_p=1.0,
+        top_k=0,
+    )
+    if stop_sequences:
+        generate_kwargs["stop_strings"] = stop_sequences
+        generate_kwargs["tokenizer"]    = tokenizer
+
     responses = []
     for _ in range(n_samples):
-        output_ids = model.generate(
-            **inputs,
-            max_new_tokens=max_new_tokens,
-            temperature=temperature,
-            do_sample=(temperature > 0),
-            pad_token_id=tokenizer.pad_token_id,
-        )
+        output_ids = model.generate(**inputs, **generate_kwargs)
         new_ids  = output_ids[0][prompt_len:]
         response = tokenizer.decode(new_ids, skip_special_tokens=True).strip()
+        if stop_sequences:
+            for stop in stop_sequences:
+                if response.endswith(stop.strip()) and stop.strip():
+                    response = response[: -len(stop.strip())].strip()
+                    break
         responses.append(response)
 
     return responses
@@ -165,19 +174,19 @@ def sample_responses(
 
 def load_nli_model(model_name: str | None = None):
     """
-    Load the DeBERTa-large-mnli NLI classifier (backend "deberta", the
+    Load the DeBERTa-v2-xlarge-mnli NLI classifier (backend "deberta", the
     default and the original protocol from Kuhn et al. 2023 / Farquhar
     et al. 2024).
 
     Args:
         model_name: HF model id. Defaults to cfg.nli_model_name
-            (typically "microsoft/deberta-large-mnli") if not given.
+            (typically "microsoft/deberta-v2-xlarge-mnli") if not given.
 
     Returns:
         (nli_model, nli_tokenizer)
 
     Note on label order:
-        microsoft/deberta-large-mnli outputs 3-way logits in the order
+        microsoft/deberta-v2-xlarge-mnli outputs 3-way logits in the order
         [contradiction, neutral, entailment] — this ordering is used by
         get_entailment_prob() below.
     """
@@ -189,7 +198,10 @@ def load_nli_model(model_name: str | None = None):
     print(f"  Loading NLI model: {model_name}")
     nli_tokenizer = AutoTokenizer.from_pretrained(model_name)
     nli_model     = AutoModelForSequenceClassification.from_pretrained(model_name)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    nli_model.to(device)
     nli_model.eval()
+    print(f"  NLI model device: {device}")
     return nli_model, nli_tokenizer
 
 
@@ -542,7 +554,7 @@ def get_semantic_entropy(
     nli_tokenizer,
     n_samples: int = 5,
     temperature: float = 1.0,
-    max_new_tokens: int = 30,
+    max_new_tokens: int = 50,
     strict_entailment: bool = True,
     fixed_response: str | None = None,
     judge_backend: str = "deberta",
@@ -663,7 +675,7 @@ def judge_correctness_llm(
     question: str,
     reference_answer: str,
     predicted_answer: str,
-    max_new_tokens: int = 10,
+    max_new_tokens: int = 20,
 ) -> bool:
     """
     LLM-judge correctness check: does predicted_answer mean the same thing
@@ -672,9 +684,8 @@ def judge_correctness_llm(
     Prompt follows Kossen et al. (2024) / Tjandra et al. (2024)'s
     correctness-assessment protocol (see also Farquhar et al. 2024's
     long-form correctness check) — generates "yes"/"no" as free text and
-    checks whether the response starts with "yes", rather than reading
-    token-level probabilities, matching how the literature implements
-    this step.
+    parses it, rather than reading token-level probabilities, matching how
+    the literature implements this step.
 
     Args:
         judge_model, judge_tokenizer : from load_local_llm_judge() — reuse
@@ -689,7 +700,9 @@ def judge_correctness_llm(
             greedy answer).
 
     Returns:
-        bool — True if the judge says "yes" (correct), False otherwise.
+        bool — True if the judge's verdict is "yes", False if "no" OR if
+        no parseable verdict was found (conservative default — an
+        unparseable judge response should not count as a pass).
     """
     prompt_text = _CORRECTNESS_JUDGE_PROMPT_TEMPLATE.format(
         question=question,
@@ -715,7 +728,10 @@ def judge_correctness_llm(
     )
     new_ids  = output_ids[0][inputs["input_ids"].shape[1]:]
     response = judge_tokenizer.decode(new_ids, skip_special_tokens=True).strip().lower()
-    return response.startswith("yes")
+    match = re.search(r"\b(yes|no)\b", response)
+    if match is None:
+        return False
+    return match.group(1) == "yes"
 
 
 def judge_correctness(
@@ -733,6 +749,13 @@ def judge_correctness(
     backend cfg.entailment_backend points to for BOTH entailment
     clustering and correctness checking, without branching themselves.
 
+    A string-identical predicted_answer / reference_answer pair always
+    counts as correct, checked before dispatching to either backend — the
+    "llm" backend has no equivalent of get_entailment_prob()'s exact-match
+    shortcut, so without this, a byte-for-byte-identical answer could
+    still be marked incorrect purely because the judge LLM produced an
+    unreliable free-text verdict (observed in practice, not hypothetical).
+
     Args:
         backend: "llm" -> judge_correctness_llm() (generates yes/no as
             free text, per Kossen et al. 2024 / Tjandra et al. 2024).
@@ -740,11 +763,17 @@ def judge_correctness(
             predicted_answer and reference_answer, matching the original
             Kuhn et al. (2023) protocol used in this codebase's previous
             compute_auroc.py: correct only if BOTH directions entail.
-        strict_entailment: only used for backend="deberta".
+            Unlike cluster_by_entailment(), correctness checking has no
+            non-strict variant in the literature — both directions must
+            classify as entailment (label 2).
 
     Returns:
         bool — True if predicted_answer is judged correct.
     """
+    normalize = lambda s: s.strip().lower().rstrip(".,;:!?")
+    if normalize(predicted_answer) == normalize(reference_answer):
+        return True
+
     if backend == "llm":
         return judge_correctness_llm(
             judge_model, judge_tokenizer, question, reference_answer, predicted_answer,
