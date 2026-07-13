@@ -113,6 +113,13 @@ def parse_args():
                         help="Override cfg.num_epochs")
     parser.add_argument("--lr",        type=float, default=None,
                         help="Override cfg.learning_rate")
+    parser.add_argument("--model_tag", type=str, default=None,
+                        help="Extra tag appended to the auto-derived "
+                             "distilled_model_path, e.g. 'strict_full' or "
+                             "'fewshot_high_entropy' — required whenever "
+                             "you run more than one distillation variant "
+                             "for the same dataset+student, or later runs "
+                             "silently overwrite earlier ones' checkpoint.")
 
     return parser.parse_args()
 
@@ -126,12 +133,14 @@ def apply_overrides(args):
     if args.epochs:    cfg.num_epochs         = args.epochs
     if args.lr:        cfg.learning_rate      = args.lr
 
-    # Auto-derive the checkpoint save path from dataset + student name so
-    # that running distill.py with different --dataset / --student values
-    # never silently overwrites a previous run's checkpoint.
+    # Auto-derive the checkpoint save path from dataset + student name (+
+    # optional --model_tag) so that running distill.py with different
+    # --dataset / --student / --model_tag values never silently overwrites
+    # a previous run's checkpoint.
     student_short = short_model_name(cfg.student_model_name)
+    tag_suffix = f"_{args.model_tag}" if args.model_tag else ""
     cfg.distilled_model_path = (
-        f"/scratch-ssd/ms25yt/models/{cfg.dataset}_{student_short}_student"
+        f"/scratch-ssd/ms25yt/models/{cfg.dataset}_{student_short}_student{tag_suffix}"
     )
 
 

@@ -266,6 +266,8 @@ def generate_teacher_responses(
         cfg.semantic_max_new_tokens if dataset == "simpleqa" else cfg.max_new_tokens
     )
 
+    from semantic_utils import DEFAULT_STOP_SEQUENCES
+
     for idx, prompt in enumerate(tqdm(prompts, desc="Teacher generating")):
         messages = [{"role": "user", "content": prompt}]
         # enable_thinking=False disables Qwen3's <think>...</think> reasoning
@@ -290,11 +292,20 @@ def generate_teacher_responses(
             temperature=cfg.temperature,
             do_sample=(cfg.temperature > 0),
             pad_token_id=teacher_tokenizer.pad_token_id,
+            renormalize_logits=True,
+            top_p=1.0,
+            top_k=0,
+            stop_strings=DEFAULT_STOP_SEQUENCES,
+            tokenizer=teacher_tokenizer,
         )
 
         # Decode only the newly generated tokens (strip the prompt prefix)
         new_ids  = output_ids[0][inputs["input_ids"].shape[1]:]
-        response = teacher_tokenizer.decode(new_ids, skip_special_tokens=True)
+        response = teacher_tokenizer.decode(new_ids, skip_special_tokens=True).strip()
+        for stop in DEFAULT_STOP_SEQUENCES:
+            if response.endswith(stop.strip()) and stop.strip():
+                response = response[: -len(stop.strip())].strip()
+                break
         data.append({"question_idx": idx, "prompt": prompt, "response": response})
 
     # Persist to disk for downstream reuse. Filename includes dataset and
@@ -375,6 +386,8 @@ def build_single_prompt_dataset(
         response = forced_answer
         print(f"  Teacher response FORCED to: '{response}'")
     else:
+        from semantic_utils import DEFAULT_STOP_SEQUENCES
+
         gen_max_new_tokens = (
             cfg.semantic_max_new_tokens if dataset == "simpleqa" else cfg.max_new_tokens
         )
@@ -395,9 +408,16 @@ def build_single_prompt_dataset(
                 max_new_tokens=gen_max_new_tokens,
                 do_sample=False,
                 pad_token_id=teacher_tokenizer.pad_token_id,
+                repetition_penalty=1.3,
+                stop_strings=DEFAULT_STOP_SEQUENCES,
+                tokenizer=teacher_tokenizer,
             )
         new_ids  = output_ids[0][inputs["input_ids"].shape[1]:]
         response = teacher_tokenizer.decode(new_ids, skip_special_tokens=True).strip()
+        for stop in DEFAULT_STOP_SEQUENCES:
+            if response.endswith(stop.strip()) and stop.strip():
+                response = response[: -len(stop.strip())].strip()
+                break
         print(f"  Teacher response generated: '{response}'")
 
     teacher_data = [{"prompt": item["prompt"], "response": response}] * n_repeats
