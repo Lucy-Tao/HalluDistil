@@ -146,8 +146,9 @@ def sample_responses(
         do_sample=(temperature > 0),
         pad_token_id=tokenizer.pad_token_id,
         renormalize_logits=True,
-        top_p=1.0,
-        top_k=0,
+        top_p=0.8,
+        top_k=20,
+        # repetition_penalty=1.3,
     )
     if stop_sequences:
         generate_kwargs["stop_strings"] = stop_sequences
