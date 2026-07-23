@@ -81,3 +81,17 @@ dmypy.json
 wandb/
 simple_evals/
 logs/
+gen_data/
+gen_data_subset500/
+gen_data_distilled/
+gen_longform_data/
+judged_data/
+judged_data_distilled/
+archive_oldsampling/
+logs/
+figures/
+results/
+data/
+__pycache__/
+*.pyc
+*.bak

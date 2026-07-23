@@ -3,20 +3,27 @@ run.py — Single entry point for all pipeline stages.
 
 Usage
 -----
-  # Multi-prompt distillation (default: all prompts in the dataset)
-  python run.py --mode distill
-  python run.py --mode distill --dataset simpleqa --n_samples 200
-
   # Single-prompt distillation (specify question_idx + n_repeats)
   python run.py --mode distill --question_idx 17 --n_repeats 32
   python run.py --mode distill --question_idx 17 --n_repeats 32 --forced_answer B
 
-  # Filtered-questions distillation (train on a specific set of question
-  # indices, e.g. the "both teacher and base student high-entropy" set
-  # found by filter_questions.py --mode scan; teacher responses are read
-  # from that scan file, not regenerated)
-  python run.py --mode distill --scan_file figures/scan_simpleqa_14Bto4B.json \
-                 --question_indices 3 17 42 58
+  # Filtered-questions distillation — covers BOTH "full" and "high_entropy"
+  # distillation (see distill.py's run_distillation() docstring). Reads
+  # target responses (raw_responses[0]) straight from a judge_responses.py
+  # output file; the teacher model is never loaded.
+  #
+  #   "full" distillation — omit --question_indices, defaults to every
+  #   question_idx found in --judged_file:
+  python run.py --mode distill \
+      --judged_file judged_data/judged_simpleqa_Qwen3-14B_strict.jsonl \
+      --model_tag strict_full
+  #
+  #   "high_entropy" distillation — pass the threshold-selected subset
+  #   (e.g. from select_threshold.py's saved question_indices):
+  python run.py --mode distill \
+      --judged_file judged_data/judged_simpleqa_Qwen3-14B_strict.jsonl \
+      --question_indices 3 17 42 58 \
+      --model_tag strict_high_entropy
 
   # Visualize semantic-cluster distributions for one question
   python run.py --mode visualize --question_idx 0
@@ -59,10 +66,9 @@ def parse_args():
     parser.add_argument(
         "--question_idx", type=int, default=None,
         help="Question index (0-indexed). "
-             "For distill mode: if set (and --question_indices is NOT set), "
-             "single-prompt mode (distill only this question, repeated "
-             "--n_repeats times). If neither is set, multi-prompt mode "
-             "(use --n_samples prompts from the dataset). "
+             "For distill mode: single-prompt mode (distill only this "
+             "question, repeated --n_repeats times) — mutually exclusive "
+             "with --judged_file. "
              "For visualize mode: which question to visualize (defaults to 0)."
     )
 
@@ -80,24 +86,25 @@ def parse_args():
 
     # ── Filtered-questions distillation options ─────────────────
     parser.add_argument(
+        "--judged_file", type=str, default=None,
+        help="Filtered-questions distill mode: path to a judge_responses.py "
+             "output .jsonl file to read target responses (raw_responses[0]) "
+             "from. Mutually exclusive with --question_idx. The teacher "
+             "model is NOT loaded in this mode."
+    )
+    parser.add_argument(
         "--question_indices", type=int, nargs="+", default=None,
-        help="Filtered-questions distill mode: a specific list of question "
-             "indices to train on (e.g. from filter_questions.py's "
-             "'both high entropy' filter). Mutually exclusive with "
-             "--question_idx. Requires --scan_file. The teacher model is "
-             "NOT loaded in this mode — its responses to these questions "
-             "are read from --scan_file instead of being generated."
+        help="Filtered-questions distill mode only: which question_idx (from "
+             "--judged_file) to train on — e.g. the high-entropy subset "
+             "saved by select_threshold.py. If omitted, defaults to EVERY "
+             "question_idx found in --judged_file ('full' distillation)."
     )
     parser.add_argument(
         "--scan_file", type=str, default=None,
-        help="Filtered-questions distill mode only: path to a "
-             "filter_questions.py scan output JSON to read teacher "
-             "low-temperature responses from. Required when "
-             "--question_indices is set."
+        help="Visualize mode only: path to a filter_questions.py scan "
+             "output JSON to read teacher/base-student responses from "
+             "instead of sampling them fresh."
     )
-
-    # ── Batch options ──────────────────────────────────────────
-    # (batch_entropy mode removed — use filter_questions.py --mode scan instead)
 
     # ── Config overrides ───────────────────────────────────────
     parser.add_argument("--teacher",   type=str,   default=None,
@@ -120,6 +127,10 @@ def parse_args():
                              "you run more than one distillation variant "
                              "for the same dataset+student, or later runs "
                              "silently overwrite earlier ones' checkpoint.")
+    parser.add_argument("--warmup_ratio", type=float, default=None,
+                        help="Override config warmup_ratio for this run")
+    parser.add_argument("--max_grad_norm", type=float, default=None,
+                        help="Override config max_grad_norm for this run")
 
     return parser.parse_args()
 
@@ -131,8 +142,9 @@ def apply_overrides(args):
     if args.dataset:   cfg.dataset            = args.dataset
     if args.n_samples: cfg.num_train_samples  = args.n_samples
     if args.epochs:    cfg.num_epochs         = args.epochs
-    if args.lr:        cfg.learning_rate      = args.lr
-
+    if args.lr is not None:        cfg.learning_rate      = args.lr
+    if args.warmup_ratio is not None: cfg.warmup_ratio = args.warmup_ratio
+    if args.max_grad_norm is not None: cfg.max_grad_norm = args.max_grad_norm
     # Auto-derive the checkpoint save path from dataset + student name (+
     # optional --model_tag) so that running distill.py with different
     # --dataset / --student / --model_tag values never silently overwrites
@@ -148,23 +160,28 @@ def main():
     args = parse_args()
     apply_overrides(args)
 
-    if args.question_idx is not None and args.question_indices is not None:
+    if args.question_idx is not None and args.judged_file is not None:
         raise ValueError(
-            "--question_idx and --question_indices are mutually exclusive — "
-            "use --question_idx for single-prompt mode or --question_indices "
-            "for filtered-questions mode, not both."
+            "--question_idx and --judged_file are mutually exclusive — "
+            "use --question_idx for single-prompt mode or --judged_file "
+            "for filtered-questions mode (covers both 'full' and "
+            "'high_entropy' distillation), not both."
         )
-    if args.question_indices is not None and args.scan_file is None:
-        raise ValueError("--question_indices requires --scan_file.")
+    if args.mode in ("distill", "all") and args.question_idx is None and args.judged_file is None:
+        raise ValueError(
+            "distill mode requires either --question_idx (single-prompt "
+            "mode) or --judged_file (filtered-questions mode)."
+        )
 
     print(f"\n{'='*60}")
     print(f"Mode    : {args.mode}")
     print(f"Teacher : {cfg.teacher_model_name}")
     print(f"Student : {cfg.student_model_name}")
     print(f"Dataset : {cfg.dataset}")
-    if args.question_indices is not None:
-        print(f"Questions: {args.question_indices}  (filtered-questions mode, "
-              f"scan_file={args.scan_file})")
+    if args.judged_file is not None:
+        idx_desc = args.question_indices if args.question_indices is not None else "ALL (full distillation)"
+        print(f"Questions: {idx_desc}  (filtered-questions mode, "
+              f"judged_file={args.judged_file})")
     elif args.question_idx is not None:
         # Only show n_repeats label for distill/all mode — it's meaningless
         # (and was misleading) when the mode is purely visualize.
@@ -184,7 +201,7 @@ def main():
             n_repeats=args.n_repeats,
             forced_answer=args.forced_answer,
             question_indices=args.question_indices,
-            scan_file=args.scan_file,
+            judged_file=args.judged_file,
         )
 
     if args.mode in ("visualize", "all"):

@@ -4,22 +4,12 @@ data_utils.py — Dataset loading for all supported benchmarks.
 Supported datasets
 ------------------
 "truthfulqa"  TruthfulQA multiple-choice (817 questions, 4 options)
-              Saturates for strong models like Qwen3-8B (>95% accuracy).
-              Kept for reference / backward compatibility.
 
 "gpqa"        Graduate-Level Google-Proof QA (448 questions, 4 options)
-              Biology, physics, chemistry. PhD experts reach 65% accuracy.
-              Qwen3-8B accuracy ~50-60% — ideal difficulty for observing
-              genuine teacher uncertainty in the distribution plots.
-              Recommended for Phase 1 pre-experiment.
 
 "mmlu_pro"    MMLU-Pro (12 000 questions, up to 10 options)
-              14 domains. Causes 16-33% accuracy drop vs original MMLU.
-              10 options make distribution saturation much harder.
-              Recommended for Phase 1 main experiment (large scale).
 
 "simpleqa"    SimpleQA short-form open-ended QA (4326 questions)
-              Phase 2 dataset. No fixed choice labels — full vocab matters.
 
 Public API
 ----------
@@ -45,7 +35,7 @@ def load_dataset_items(dataset: str, num_samples: int) -> list[dict]:
     Dispatch to the correct loader based on the dataset name.
 
     Args:
-        dataset    : one of "truthfulqa", "gpqa", "mmlu_pro", "simpleqa"
+        dataset    : one of "truthfulqa", "gpqa", "mmlu_pro", "simpleqa", "factscore_bio"
         num_samples: maximum number of items to return
     """
     loaders = {
@@ -53,6 +43,7 @@ def load_dataset_items(dataset: str, num_samples: int) -> list[dict]:
         "gpqa":       _load_gpqa,
         "mmlu_pro":   _load_mmlu_pro,
         "simpleqa":   _load_simpleqa,
+        "factscore_bio": _load_factscore_bio,
     }
     if dataset not in loaders:
         raise ValueError(
@@ -331,14 +322,6 @@ def _load_simpleqa(num_samples: int) -> list[dict]:
 
     Dataset : basicv8vc/SimpleQA, split=test
     Size    : 4326 short factual questions with a unique correct answer.
-              The last _SIMPLEQA_N_FEWSHOT=5 rows are ALWAYS reserved
-              (regardless of cfg.prompt_style) and never used as an actual
-              teacher/student question — so the usable pool is 4321, not
-              4326. This is deliberate even for "strict" (which doesn't
-              need a few-shot pool at all): keeping the same question set
-              under both prompt styles means a strict-vs-fewshot
-              comparison isn't confounded by also comparing different
-              questions.
     Fields  : "problem" (question string)
 
     Prompt (cfg.prompt_style, set via config.py or --prompt_style CLI flag):
@@ -346,11 +329,7 @@ def _load_simpleqa(num_samples: int) -> list[dict]:
           (2024)'s short-phrase template: "answer briefly" instruction +
           5 few-shot (question, answer) pairs + the real question.
       "strict" — the original zero-shot, many-negative-constraints
-          instruction (no few-shot). Kept available for direct comparison
-          against "fewshot" on the identical 4321-question set — see
-          conversation history for why "fewshot" is otherwise preferred
-          (measurably better accuracy at similar-or-better format
-          compliance, on the samples tested so far).
+          instruction (no few-shot). 
 
     Return format per item:
         {
@@ -401,4 +380,84 @@ def _load_simpleqa(num_samples: int) -> list[dict]:
 
     print(f"  Loaded {len(items)} SimpleQA items.")
     print(f"  Example prompt:\n{items[0]['prompt']}")
+    return items
+
+# ── FActScore Bio ───────────────────────────────────────────────────────────────
+
+
+def _load_factscore_bio(num_samples: int) -> list[dict]:
+    """
+    Load FActScore(Bio) prompt entities (Min et al. 2023) and build
+    biography-generation prompts.
+ 
+    Source  : the official FActScore data package (Min et al. 2023)
+ 
+    Prompt  : "Question: Tell me a bio of {entity}." 
+ 
+              A SECOND sentence is appended after it — NOT part of the
+              official prompt — instructing the model to answer in plain
+              prose with no markdown formatting. This is necessary because
+              our models (Qwen3, chat/RLHF-tuned) default to headers,
+              bold text, and bullet lists when asked an open-ended
+              question, unlike the base/lightly-tuned InstructGPT the
+              original paper used, which produced plain prose by default
+              without needing to be told to. The added sentence only
+              constrains OUTPUT STYLE (how to answer), not the question
+              itself (what is being asked), so the core prompt users
+              read in the paper is left untouched — this is a
+              chat-model-specific addition on top of it, not a
+              replacement. See project chat history for the concrete
+              markdown-parsing problems (headers being sentence-split as
+              if they were prose, bullet items losing their boundaries)
+              that motivated adding this.
+ 
+    Return format per item:
+        {
+          "prompt" : str   "Question: Tell me a bio of {entity}."
+          "entity" : str   the entity name — used both for logging/display
+                           and for later FActScore scoring, where
+                           FactScorer.get_score expects a "topics" list of
+                           entity-name strings
+        }
+    """
+    import os
+ 
+    from config import cfg
+ 
+    cache_path = os.path.join(cfg.data_dir, "factscore_labeled_entities.txt")
+ 
+    if not os.path.exists(cache_path):
+        raise FileNotFoundError(
+            f"FActScore(Bio) labeled entity list not found at {cache_path!r}. "
+            "This file is not auto-downloaded (see this function's docstring "
+            "for why) — fetch it once on a machine with full internet access "
+            "via `pip install factscore && python -m factscore.download_data`, "
+            "then copy the resulting data/labeled/prompt_entities.txt to "
+            f"{cache_path!r} before running this again."
+        )
+ 
+    with open(cache_path, "r", encoding="utf-8") as f:
+        entities = [line.strip() for line in f if line.strip()]
+ 
+    print(f"  Loaded {len(entities)} FActScore(Bio) labeled entities "
+          f"(from {cache_path}).")
+ 
+    items = []
+    for entity in entities:
+        prompt = (
+            f"Question: Tell me a bio of {entity}. "
+            f"Answer in plain prose, as continuous paragraphs of complete "
+            f"sentences. Do not use headings, bullet points, numbered "
+            f"lists, bold or italic text, or any other formatting."
+        )
+        items.append({
+            "prompt": prompt,
+            "entity": entity,
+        })
+        if len(items) >= num_samples:
+            break
+ 
+    print(f"  Built {len(items)} FActScore(Bio) prompts.")
+    if items:
+        print(f"  Example prompt:\n    {items[0]['prompt']}")
     return items

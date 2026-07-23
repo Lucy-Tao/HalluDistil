@@ -7,23 +7,23 @@ SEPARATE later phase that reads this script's output.
 For each question:
     - 1 response at T=0.1  (low_temp_response — for correctness judging later)
     - N responses at T=1.0 (raw_responses — for semantic entropy clustering
-      later; kept fully SEPARATE from low_temp_response)
+      later
 
 Because judging is a separate step, this script only ever needs to load
 ONE model (teacher OR student — never a model + a judge together), so a
 single GPU is enough even for the 14B teacher.
 
 Checkpointed incrementally (one JSON line per question) — safe to resume
-after a timeout/crash.
+after a timeout/crash, same mechanism as filter_questions.py's scan_model().
 
 Usage:
     python generate_responses.py \
         --model_role teacher \
         --dataset simpleqa \
         --prompt_style strict \
-        --n_samples 4321 \
+        --question_indices_file ~/SimpleQA/subset_500_question_indices.json \
         --n_high_temp_samples 10 \
-        --output_dir /scratch-ssd/ms25yt/gen_full
+        --output_dir ~/SimpleQA/gen_data
 
 Output file: {output_dir}/gen_{dataset}_{model_short}_{prompt_style}.jsonl
 Each line: {
@@ -71,8 +71,13 @@ def main():
     parser.add_argument("--dataset", type=str, default="simpleqa")
     parser.add_argument("--prompt_style", type=str, required=True,
                          choices=["strict", "fewshot"])
-    parser.add_argument("--n_samples", type=int, required=True,
-                         help="number of questions to generate for")
+    parser.add_argument("--question_indices_file", type=str, required=True,
+                         help="path to a JSON file with a 'question_indices' "
+                              "list (e.g. sample_question_indices.py's output) "
+                              "— generate for exactly these question_idx. To "
+                              "generate for a sequential range instead (e.g. "
+                              "'all 4326 questions'), just put that full range "
+                              "in the file's 'question_indices' list.")
     parser.add_argument("--n_high_temp_samples", type=int, default=10,
                          help="number of T=1.0 samples per question, kept "
                               "separate from the single T=0.1 sample")
@@ -102,16 +107,24 @@ def main():
     print(f"  model_name:          {model_name}")
     print(f"  dataset:             {args.dataset}")
     print(f"  prompt_style:        {args.prompt_style}")
-    print(f"  n_samples:           {args.n_samples}")
+    print(f"  question_indices_file: {args.question_indices_file}")
     print(f"  n_high_temp_samples: {args.n_high_temp_samples}")
     print(f"  checkpoint file:     {ckpt_path}")
     print(f"{'='*60}\n")
 
-    items = load_dataset_items(args.dataset, num_samples=args.n_samples)
-    print(f"Loaded {len(items)} question(s).")
+    with open(args.question_indices_file, "r", encoding="utf-8") as f:
+        wanted_idx = sorted(json.load(f)["question_indices"])
+    # load_dataset_items() only supports "give me the first N items" —
+    # load enough to cover the highest requested index, then filter down
+    # to just the specific ones we want.
+    all_items = load_dataset_items(args.dataset, num_samples=wanted_idx[-1] + 1)
+    wanted_set = set(wanted_idx)
+    items_with_idx = [(i, item) for i, item in enumerate(all_items) if i in wanted_set]
+    print(f"Loaded {len(all_items)} question(s), restricted to "
+          f"{len(items_with_idx)} in {args.question_indices_file}.")
 
     done_indices = load_done_indices(ckpt_path)
-    remaining = [(i, item) for i, item in enumerate(items) if i not in done_indices]
+    remaining = [(i, item) for i, item in items_with_idx if i not in done_indices]
     print(f"Checkpoint: {len(done_indices)} question(s) already done, "
           f"{len(remaining)} remaining.")
 

@@ -38,15 +38,22 @@ from model_utils import load_model_and_tokenizer, short_model_name
 
 
 # ══════════════════════════════════════════════════════════════
-# Step 0 — Save-path helpers + cross-mode lookup
+# Step 0 — Save-path helpers
 # ══════════════════════════════════════════════════════════════
 #
-# Both distillation modes (multi-prompt and single-prompt) persist the
-# teacher response actually used as training data, so visualize.py can
-# later reuse it (instead of re-sampling) and highlight it on Panel 2.
-# These helpers centralise the filename convention so the save side
-# (here) and the load side (load_teacher_distill_response, also here,
-# called from visualize.py) can never drift apart.
+# _multi_prompt_responses_path() is used by generate_teacher_responses()
+# below (currently unreferenced by run_distillation() — see its docstring
+# for why the "full multi-prompt regeneration" mode was retired — kept in
+# case you want it back for a different dataset/use case later, not
+# deleted without explicit confirmation).
+#
+# _single_prompt_response_path() is used by build_single_prompt_dataset()
+# to persist the single-prompt-mode sample. The lookup counterpart that
+# used to read these files back (load_teacher_distill_response(), for
+# visualize.py's Panel 2) has been removed — visualize.py is being
+# rewritten to read clusters/entropy straight from judge_responses.py's
+# output instead of re-sampling and looking up a saved distillation
+# sample this way.
 
 def _multi_prompt_responses_path(dataset: str, teacher_model_name: str) -> str:
     """Path to the aggregate multi-prompt teacher-responses file."""
@@ -63,158 +70,6 @@ def _single_prompt_response_path(
         cfg.data_dir,
         f"teacher_response_single_{dataset}_{teacher_short}_q{question_idx:03d}.json",
     )
-
-
-def load_teacher_distill_response(
-    dataset: str,
-    teacher_model_name: str,
-    question_idx: int,
-) -> str | None:
-    """
-    Look up the teacher response that was actually used as distillation
-    training data for a given question_idx, so it can be reused (instead
-    of re-sampled) and highlighted in visualize.py's Panel 2.
-
-    Search order (most specific first):
-      1. Single-prompt save file for this exact question_idx — written by
-         build_single_prompt_dataset() when running
-         `python run.py --mode distill --question_idx N`.
-      2. Multi-prompt aggregate file — written by generate_teacher_responses()
-         during a full `python run.py --mode distill` run, matched by the
-         "question_idx" field of each record.
-
-    Returns None (after printing why) if no saved response covers this
-    question_idx — callers should fall back to fresh sampling in that case.
-
-    Note: files saved before this question_idx-tracking feature was added
-    won't have a "question_idx" field on multi-prompt records and won't be
-    matched here. Re-run distillation to regenerate them if you need reuse
-    for those questions.
-    """
-    single_path = _single_prompt_response_path(dataset, teacher_model_name, question_idx)
-    if os.path.exists(single_path):
-        with open(single_path, "r", encoding="utf-8") as f:
-            record = json.load(f)
-        print(f"  Found saved single-prompt distillation sample for "
-              f"question_idx={question_idx} -> {single_path}")
-        return record["response"]
-
-    multi_path = _multi_prompt_responses_path(dataset, teacher_model_name)
-    if os.path.exists(multi_path):
-        with open(multi_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        for rec in data:
-            if rec.get("question_idx") == question_idx:
-                print(f"  Found saved multi-prompt distillation sample for "
-                      f"question_idx={question_idx} -> {multi_path}")
-                return rec["response"]
-        print(f"  No record with question_idx={question_idx} in {multi_path} "
-              f"({len(data)} entries total — files saved before this feature "
-              f"was added won't have 'question_idx' fields). "
-              f"Falling back to fresh sampling.")
-        return None
-
-    print(f"  No saved teacher distillation response found for "
-          f"dataset='{dataset}', question_idx={question_idx} "
-          f"(checked '{single_path}' and '{multi_path}'). "
-          f"Run `python run.py --mode distill` first to populate it. "
-          f"Falling back to fresh sampling.")
-    return None
-
-
-def build_filtered_index_dataset(
-    dataset: str,
-    teacher_model_name: str,
-    scan_json_path: str,
-    question_indices: list[int],
-) -> list[dict]:
-    """
-    Build SFT training data directly from a filter_questions.py
-    `--mode scan` JSON's already-generated teacher low_temp_answer for
-    each given question_idx — no teacher model load, no regeneration.
-    This is the data-building step for run_distillation()'s filtered-index
-    mode (see its docstring).
-
-    Side effect:
-        MERGES these (question_idx, prompt, response) records into the
-        standard multi-prompt aggregate file
-        (teacher_responses_{dataset}_{teacher}.json — see
-        generate_teacher_responses() and load_teacher_distill_response()
-        above), so visualize.py's Panel 2 can later find and highlight
-        these exact training samples, exactly as it would for a normal
-        multi-prompt distill run. Existing entries for OTHER question_idx
-        already in that file (e.g. from a prior full multi-prompt run)
-        are preserved, not overwritten — only the given question_indices
-        are added/updated.
-
-    Args:
-        dataset            : dataset name (sanity-checked against the
-            scan's own recorded dataset; mismatches are warned, not fatal).
-        teacher_model_name : sanity-checked against the scan's recorded
-            teacher model the same way.
-        scan_json_path      : path to a filter_questions.py
-            `--mode scan` output (e.g. data/scan_simpleqa_14Bto4B.json).
-        question_indices    : which question_idx to pull from the scan.
-
-    Returns:
-        list[{"prompt", "response"}] — ready for prepare_sft_dataset().
-    """
-    with open(scan_json_path, "r", encoding="utf-8") as f:
-        scan = json.load(f)
-
-    meta = scan["metadata"]
-    if meta["dataset"] != dataset:
-        print(f"  WARNING: scan's dataset ({meta['dataset']!r}) != "
-              f"cfg.dataset ({dataset!r}). Proceeding anyway, but double-"
-              f"check this is what you intended.")
-    if meta["teacher_model"] != teacher_model_name:
-        print(f"  WARNING: scan's teacher ({meta['teacher_model']!r}) != "
-              f"cfg.teacher_model_name ({teacher_model_name!r}). The "
-              f"low_temp_answer you're about to distill from was generated "
-              f"by a DIFFERENT model than the one named in your current "
-              f"config — proceeding anyway, but this is almost certainly "
-              f"not what you want.")
-
-    by_idx = {r["question_idx"]: r for r in scan["teacher_records"]}
-    teacher_data = []
-    new_entries  = []
-    missing      = []
-    for idx in question_indices:
-        if idx not in by_idx:
-            missing.append(idx)
-            continue
-        rec = by_idx[idx]
-        teacher_data.append({"prompt": rec["prompt"], "response": rec["low_temp_answer"]})
-        new_entries.append({
-            "question_idx": idx,
-            "prompt":       rec["prompt"],
-            "response":     rec["low_temp_answer"],
-        })
-    if missing:
-        preview = missing[:10]
-        print(f"  WARNING: {len(missing)} question_idx not found in this "
-              f"scan's teacher_records, skipped: {preview}"
-              f"{'...' if len(missing) > 10 else ''}")
-
-    # Merge into the standard aggregate file (see comment above) rather
-    # than overwrite it, so load_teacher_distill_response() keeps working
-    # for question_idx from earlier runs too.
-    os.makedirs(cfg.data_dir, exist_ok=True)
-    agg_path = _multi_prompt_responses_path(dataset, teacher_model_name)
-    existing = []
-    if os.path.exists(agg_path):
-        with open(agg_path, "r", encoding="utf-8") as f:
-            existing = json.load(f)
-    existing_by_idx = {r["question_idx"]: r for r in existing if "question_idx" in r}
-    for entry in new_entries:
-        existing_by_idx[entry["question_idx"]] = entry
-    merged = list(existing_by_idx.values())
-    with open(agg_path, "w", encoding="utf-8") as f:
-        json.dump(merged, f, indent=2, ensure_ascii=False)
-    print(f"  Merged {len(new_entries)} filtered-index teacher responses into "
-          f"{agg_path} ({len(merged)} total entries now)")
-
-    return teacher_data
 
 
 # ══════════════════════════════════════════════════════════════
@@ -351,10 +206,13 @@ def build_single_prompt_dataset(
 
     Side effect:
         Saves {"question_idx", "prompt", "response", "was_forced", "n_repeats"}
-        to data/teacher_response_single_{dataset}_{teacher}_q{question_idx:03d}.json
-        so visualize.py can later reuse this exact response (via
-        load_teacher_distill_response()) instead of re-sampling, and
-        highlight it on Panel 2.
+        to data/teacher_response_single_{dataset}_{teacher}_q{question_idx:03d}.json.
+        (This save-for-later-reuse-by-visualize.py mechanism's read side,
+        load_teacher_distill_response(), has been removed — visualize.py
+        is being rewritten to work off judge_responses.py's output
+        instead. Left this save call in place since build_single_prompt_dataset()
+        itself is being kept as-is; the file it writes is just currently
+        unconsumed. Safe to keep or strip later.)
 
         Note this response is generated via greedy decoding (do_sample=False),
         not temperature sampling — that is intentional here (it makes the
@@ -423,7 +281,8 @@ def build_single_prompt_dataset(
     teacher_data = [{"prompt": item["prompt"], "response": response}] * n_repeats
     print(f"  Built dataset: {n_repeats} copies of (prompt, '{response}')")
 
-    # Persist for reuse by visualize.py (see load_teacher_distill_response above)
+    # Saved for potential later reuse (see the Step 0 header comment above
+    # for why nothing currently reads this file back).
     os.makedirs(cfg.data_dir, exist_ok=True)
     save_path = _single_prompt_response_path(dataset, cfg.teacher_model_name, question_idx)
     with open(save_path, "w", encoding="utf-8") as f:
@@ -440,41 +299,46 @@ def build_single_prompt_dataset(
 
 
 def build_dataset_from_filtered_questions(
-    scan_file: str,
+    judged_file: str,
     question_indices: list[int],
 ) -> list[dict]:
     """
-    Build SFT training data directly from a filter_questions.py scan
-    output file's already-generated teacher low-temperature (T=0.1)
-    responses, for a specific list of question indices. No teacher
-    generation happens here at all — the teacher model never needs to be
-    loaded for this mode (see run_distillation()'s filtered_mode branch).
+    Build SFT training data directly from a judge_responses.py output file
+    (Phase 2 of the current pipeline — see generate_responses.py /
+    judge_responses.py), for a specific list of question indices. No
+    teacher generation happens here at all — the teacher model never
+    needs to be loaded for this mode (see run_distillation()'s
+    filtered_mode branch).
+
+    Target response is raw_responses[0] — the FIRST of the 10 T=1.0
+    high-temperature samples — NOT low_temp_response. This is a
+    deliberate choice (see conversation history): distillation trains on
+    one high-temperature draw rather than the near-greedy T=0.1 answer.
+
+    Used for BOTH distillation variants — pass every question_idx present
+    in judged_file for "full" distillation, or a threshold-selected subset
+    (e.g. from select_threshold.py's output) for "high_entropy"
+    distillation. Same function either way; only the index list differs.
 
     Args:
-        scan_file        : path to a filter_questions.py scan output JSON
-            (must contain "teacher_records", a list of per-question dicts
-            with "question_idx", "prompt", and "low_temp_response" — see
-            filter_questions.py's scan_model()).
-        question_indices : which question_idx values to pull from scan_file
-            and use as the distillation training set — typically the
-            "both teacher and base student have semantic_entropy >=
-            threshold" set from filter_questions.py's filter step.
-
-    Side effect:
-        Saves the resulting (prompt, response) pairs to
-        data/teacher_responses_{dataset}_{teacher}.json — the SAME path
-        and format generate_teacher_responses() uses — so
-        load_teacher_distill_response() (visualize.py's Panel 2 highlight)
-        finds them later without any special-casing for this mode.
+        judged_file      : path to a judge_responses.py output .jsonl
+            file (one JSON record per line, each with "question_idx",
+            "prompt", and "raw_responses").
+        question_indices : which question_idx values to pull from
+            judged_file and use as the distillation training set.
 
     Returns:
         list of {"question_idx": int, "prompt": str, "response": str},
         ready for prepare_sft_dataset().
     """
-    with open(scan_file, "r", encoding="utf-8") as f:
-        scan_data = json.load(f)
-
-    by_idx = {r["question_idx"]: r for r in scan_data["teacher_records"]}
+    by_idx = {}
+    with open(judged_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            by_idx[rec["question_idx"]] = rec
 
     teacher_data = []
     missing = []
@@ -486,22 +350,18 @@ def build_dataset_from_filtered_questions(
         teacher_data.append({
             "question_idx": idx,
             "prompt":       rec["prompt"],
-            "response":     rec["low_temp_response"],
+            "response":     rec["raw_responses"][0],
         })
 
     if missing:
         raise ValueError(
-            f"question_idx {missing} not found in scan_file {scan_file!r} "
+            f"question_idx {missing} not found in judged_file {judged_file!r} "
             f"({len(by_idx)} questions available). Re-run "
-            f"`filter_questions.py --mode scan` covering these indices first."
+            f"`judge_responses.py` covering these indices first."
         )
 
-    os.makedirs(cfg.data_dir, exist_ok=True)
-    save_path = _multi_prompt_responses_path(cfg.dataset, cfg.teacher_model_name)
-    with open(save_path, "w", encoding="utf-8") as f:
-        json.dump(teacher_data, f, indent=2, ensure_ascii=False)
-    print(f"  Saved {len(teacher_data)} teacher responses (from filtered scan) "
-          f"-> {save_path}")
+    print(f"  Built {len(teacher_data)} (prompt, response) pair(s) from "
+          f"{judged_file} (target = raw_responses[0]).")
 
     return teacher_data
 
@@ -591,32 +451,37 @@ def run_distillation(
     n_repeats: int = 32,
     forced_answer: str | None = None,
     question_indices: list[int] | None = None,
-    scan_file: str | None = None,
+    judged_file: str | None = None,
 ):
     """
     Run the full distillation pipeline.
 
-    Three modes:
-      - Multi-prompt (default): question_idx and question_indices are both
-        None. Uses cfg.num_train_samples prompts from the front of the
-        dataset, generates one teacher response per prompt (the teacher
-        model IS loaded and run).
-
+    Two modes:
       - Single-prompt: question_idx is set. Uses one specific prompt,
         repeats it n_repeats times to form the training set. Useful for
         the single_prompt_distill_curve experiment and for debugging on a
         single example. The teacher model IS loaded and run.
 
-      - Filtered-questions (NEW): question_indices is set (a list of
-        specific, possibly non-contiguous question indices — e.g. the
-        "both teacher and base student have semantic_entropy >= threshold"
-        set found by filter_questions.py). Reads each question's teacher
-        response straight from scan_file (filter_questions.py's saved
-        scan output) instead of generating anything — the teacher model
-        is NEVER loaded in this mode, since its response to every one of
-        these questions was already generated during scanning (the
-        low-temperature, T=0.1 response — see filter_questions.py's
-        scan_model() docstring for why that's the one reused here).
+      - Filtered-questions: judged_file is set. Reads each question's
+        target response (raw_responses[0], the first T=1.0 high-temperature
+        sample) straight from judged_file (judge_responses.py's output)
+        instead of generating anything — the teacher model is NEVER
+        loaded in this mode, since every response was already generated
+        in Phase 1/2 of the pipeline.
+
+        This ONE mode covers BOTH distillation variants:
+          - "full" distillation: pass question_indices=None (or every
+            question_idx in judged_file explicitly) — trains on the whole
+            dataset.
+          - "high_entropy" distillation: pass the threshold-selected
+            subset (e.g. select_threshold.py's saved question_indices)
+            — trains on just those questions.
+        Same code path either way; only the index list differs, and
+        neither variant re-generates anything (both simply read from
+        judged_file). There used to be a THIRD, "multi-prompt" mode here
+        that re-ran teacher generation for the "full" case — removed,
+        since Phase 1 (generate_responses.py) already covers every
+        question, making that regeneration pure waste.
 
     Args:
         question_idx     : if set, single-prompt mode — use this question only.
@@ -624,65 +489,66 @@ def run_distillation(
                             sample to create (default 32).
         forced_answer     : single-prompt mode only — if set, use this string
                             as the teacher's response instead of generating one.
-        question_indices  : if set, filtered-questions mode — train on exactly
-                            these question indices, reusing teacher responses
-                            already saved in scan_file.
-        scan_file         : filtered-questions mode only — path to a
-                            filter_questions.py scan output JSON (the one
-                            containing "teacher_records" with "low_temp_response"
-                            per question_idx).
+        question_indices  : filtered-questions mode only — which question_idx
+                            to train on. If None, defaults to EVERY
+                            question_idx found in judged_file (i.e. "full"
+                            distillation without having to enumerate the
+                            indices yourself).
+        judged_file       : filtered-questions mode only — path to a
+                            judge_responses.py output .jsonl file.
     """
     single_prompt = question_idx is not None
-    filtered_mode = question_indices is not None
+    filtered_mode = judged_file is not None
 
     if single_prompt and filtered_mode:
         raise ValueError(
-            "question_idx and question_indices are mutually exclusive — "
+            "question_idx and judged_file are mutually exclusive — "
             "pick single-prompt mode OR filtered-questions mode, not both."
         )
-    if filtered_mode and scan_file is None:
+    if not single_prompt and not filtered_mode:
         raise ValueError(
-            "question_indices requires scan_file (where to read the "
-            "teacher's already-generated low-temperature responses from). "
-            "Run filter_questions.py --mode scan first."
+            "Specify either question_idx (single-prompt mode) or "
+            "judged_file (filtered-questions mode — covers both 'full' "
+            "and 'high_entropy' distillation, see docstring)."
         )
-
-    print("\n" + "=" * 60)
-    if single_prompt:
-        print(f"DISTILLATION  (Single-prompt mode, question_idx={question_idx}, "
-              f"n_repeats={n_repeats})")
-    elif filtered_mode:
-        print(f"DISTILLATION  (Filtered-questions mode, "
-              f"{len(question_indices)} question(s) from {scan_file})")
-    else:
-        print("DISTILLATION  (SeqKD / off-policy SFT)")
-    print("=" * 60)
 
     # ── Teacher: get training data ─────────────────────────────
     if filtered_mode:
-        # Every question's teacher response was already generated and
-        # saved by filter_questions.py's scan — no need to load the
-        # teacher model at all in this mode.
-        print("\n[1/3] Reading teacher responses from scan file "
+        # Every question's target response was already generated and
+        # judged in Phase 1/2 — no need to load the teacher model at all.
+        if question_indices is None:
+            with open(judged_file, "r", encoding="utf-8") as f:
+                question_indices = sorted(
+                    json.loads(line)["question_idx"] for line in f if line.strip()
+                )
+            print(f"  question_indices not given -> defaulting to ALL "
+                  f"{len(question_indices)} question(s) found in "
+                  f"{judged_file} (full distillation).")
+
+        print("\n" + "=" * 60)
+        print(f"DISTILLATION  (Filtered-questions mode, "
+              f"{len(question_indices)} question(s) from {judged_file})")
+        print("=" * 60)
+
+        print("\n[1/3] Reading target responses from judged file "
               "(teacher model NOT loaded — nothing to generate)...")
-        teacher_data = build_dataset_from_filtered_questions(scan_file, question_indices)
+        teacher_data = build_dataset_from_filtered_questions(judged_file, question_indices)
     else:
+        print("\n" + "=" * 60)
+        print(f"DISTILLATION  (Single-prompt mode, question_idx={question_idx}, "
+              f"n_repeats={n_repeats})")
+        print("=" * 60)
+
         print("\n[1/3] Loading teacher model...")
         teacher_model, teacher_tokenizer = load_model_and_tokenizer(
             cfg.teacher_model_name, device_map=cfg.device_map
         )
 
-        if single_prompt:
-            teacher_data, item = build_single_prompt_dataset(
-                cfg.dataset, question_idx,
-                teacher_model, teacher_tokenizer,
-                n_repeats=n_repeats, forced_answer=forced_answer,
-            )
-        else:
-            prompts      = load_prompts(cfg.dataset, cfg.num_train_samples)
-            teacher_data = generate_teacher_responses(
-                teacher_model, teacher_tokenizer, prompts, dataset=cfg.dataset
-            )
+        teacher_data, item = build_single_prompt_dataset(
+            cfg.dataset, question_idx,
+            teacher_model, teacher_tokenizer,
+            n_repeats=n_repeats, forced_answer=forced_answer,
+        )
 
         # Free teacher VRAM before loading student
         del teacher_model
@@ -724,7 +590,7 @@ def run_distillation(
         bf16=True,    # bfloat16 on A100/H100; switch to fp16 on V100
         fp16=False,
         # ── Logging and checkpointing ─────────────────────────
-        logging_steps=10,
+        logging_steps=2,
         eval_strategy="no",
         save_strategy="no",
         load_best_model_at_end=False,

@@ -31,14 +31,8 @@ class Config:
     # ── Distillation (SeqKD / off-policy SFT) ────────────────────────────
     num_epochs: int                  = 3
     batch_size: int                  = 2      # per-device
-    gradient_accumulation_steps: int = 1     # effective batch = 2 x 32 = 64
+    gradient_accumulation_steps: int = 8     # effective batch = 2 x 8 = 16
     learning_rate: float             = 1e-5
-    # max_length=512 is too short for GPQA/MMLU-Pro, whose questions often
-    # exceed 300-600 tokens on their own before adding the chat template
-    # and answer-only instruction. A too-short max_length causes the
-    # response (and sometimes part of the prompt) to be truncated away,
-    # producing the "prompt truncated beyond sequence length" warning in
-    # prepare_sft_dataset() and silently dropping that sample from training.
     max_length: int                  = 1024
     temperature: float               = 1.0   # teacher sampling temperature
     max_new_tokens: int              = 200
@@ -74,6 +68,7 @@ class Config:
 
     # Used only when entailment_backend == "llm". Swap this to compare
     entailment_llm_model_name: str = "Qwen/Qwen2.5-32B-Instruct"
+    decomposition_model_name: str = "Qwen/Qwen2.5-32B-Instruct"
 
     # When True, two responses are merged into the same semantic cluster only if
     # each entails the other (standard semantic entropy protocol). When False,
@@ -90,6 +85,13 @@ class Config:
     # Max new tokens for each sampled response. Short because prompts ask
     # for "a short phrase only, no explanation."
     semantic_max_new_tokens: int = 50
+
+    # ── Long-form generation (FActScore Bio) ─────────────────────────────
+    # Official FActScore paper generated its own reference bios with
+    # max_len=512 (InstructGPT/text-davinci-003) or max_len=1024 (ChatGPT) —
+    # see factscore/openai_lm.py. 
+    factscore_max_new_tokens: int = 1024
+
 
     # ── Hardware ──────────────────────────────────────────────────────────
     # "auto" distributes the model across all visible GPUs automatically.
