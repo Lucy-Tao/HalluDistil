@@ -1,0 +1,1614 @@
+
+====================================================================================================
+FILE: gen_simpleqa_Qwen3-14B_strict.jsonl  (final ruleset, all detected abstentions, original text)
+====================================================================================================
+
+[question_idx=1667]
+Q: What is the surname of the individual who won the Gibson-Fawcett Award in 2020?
+GOLD: Casiraghi
+>> raw[4] <matched: not publicly>:
+   Gibson-Fawcett Award is not a widely recognized award, and there is no publicly available information about a specific individual winning it in 2020. It is possible that the award is either not well-known, not publicly documented
+
+--- gen_simpleqa_Qwen3-14B_strict: 1 abstention fields in 1 questions ---
+
+====================================================================================================
+FILE: gen_simpleqa_Qwen3-14B_fewshot.jsonl  (final ruleset, all detected abstentions, original text)
+====================================================================================================
+
+[question_idx=3329]
+Q: Who won the gold medal in the women's foil event at the first European Fencing Championships?
+GOLD: Anna Rita Sparaciari
+>> raw[1] <matched: not applicable>:
+   Answer: Not applicable (question is incomplete).
+>> raw[2] <matched: not specified>:
+   Answer: Not specified in the question.
+>> raw[5] <matched: not applicable>:
+   Answer: Not applicable (question is incomplete).
+>> raw[6] <matched: not applicable>:
+   Answer: Not applicable (no information provided).
+>> raw[9] <matched: not specified>:
+   Answer: Not specified in the question.
+
+[question_idx=3727]
+Q: Who did the musical composition for the play Antigone as presented in the 2022 Athens Epidaurus Festival?
+GOLD: Dimitris Theocharis
+>> raw[5] <matched: cannot be determined>:
+   The answer cannot be determined from the given information.
+
+--- gen_simpleqa_Qwen3-14B_fewshot: 6 abstention fields in 2 questions ---
+
+====================================================================================================
+FILE: gen_simpleqa_Qwen3-4B-Instruct-2507_strict.jsonl  (final ruleset, all detected abstentions, original text)
+====================================================================================================
+
+[question_idx=2430]
+Q: What is the full name of the first Black woman to become president of an NFL (National Football League) team?
+GOLD: Sandra Douglass Morgan
+>> raw[0] <matched: not applicable>:
+   Not applicable
+>> raw[5] <matched: not applicable>:
+   Not applicable
+>> raw[6] <matched: not applicable>:
+   Not applicable
+>> raw[8] <matched: not applicable>:
+   Not applicable
+
+[question_idx=3675]
+Q: On what day, month, and year was the case of Nidal Khalid Nasrallah v. William P. Barr decided in the Supreme Court of the United States?
+GOLD: June 1, 2020
+>> low_temp <matched: no such>:
+   no such case was decided in the supreme court of the united states
+>> raw[7] <matched: no such>:
+   no such case exists
+
+--- gen_simpleqa_Qwen3-4B-Instruct-2507_strict: 6 abstention fields in 2 questions ---
+
+====================================================================================================
+FILE: gen_simpleqa_Qwen3-4B-Instruct-2507_fewshot.jsonl  (final ruleset, all detected abstentions, original text)
+====================================================================================================
+
+[question_idx=26]
+Q: What was the strike rate of Harbhajan Singh in the final match of IPL 2015?
+GOLD: 200.00
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not include Harbhajan Singh's strike rate in the final match of IPL 2015. Therefore, it cannot be determined from the given data.
+>> raw[4] <matched: cannot be determined>:
+   The provided information does not include Harbhajan Singh's strike rate in the final match of IPL 2015. Therefore, it cannot be determined from the given data.
+
+[question_idx=94]
+Q: On June 24, 2018, how many more votes did the winning candidate get in total than Muharrem İnce?
+GOLD: 10,990,502
+>> raw[4] <matched: cannot be determined>:
+   The question refers to a vote count in a Turkish election, but no specific data or context is provided about the number of votes the winning candidate received or how many more than Muharrem İnce. As such, the information cannot be determined from
+>> raw[5] <matched: no such>:
+   The question refers to a specific election event on June 24, 2018, but there was no such election on that date involving Muharrem İnce in Turkey. Muharrem İnce ran in the 2
+>> raw[7] <matched: cannot be determined>:
+   The question references a specific election outcome, but no data is available to confirm the vote count difference between the winning candidate and Muharrem İnce on June 24, 2018. Therefore, the answer cannot be determined from
+
+[question_idx=159]
+Q: What were the month, day, and year that Thomas Randolph wrote to the Earl of Leicester, stating that he was unable and unwilling to commit his opinions on Mary's actions on paper for fear of appearing "malicieus foolyshe and unadvised"?
+GOLD: 14 February 1566
+>> raw[1] <matched: cannot be determined>:
+   The provided information does not specify the exact month, day, and year when Thomas Randolph wrote to the Earl of Leicester with that statement. Therefore, based on available records, the date cannot be determined.
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: cannot be verified>:
+   No known record confirms the exact date Thomas Randolph wrote that letter. Therefore, the date cannot be verified.
+>> raw[9] <matched: cannot be determined>:
+   No known exact date is recorded for Thomas Randolph's letter with those specific words. The statement appears in historical context but lacks a precise date in reliable records. Therefore, the date cannot be determined.
+
+[question_idx=260]
+Q: What month, day, and year was House Resolution 7004, "Addressing the Governor's unacceptable actions in matters related to the appraiser certification program," introduced against Governor Kristi Noem?
+GOLD: February 24, 2022
+>> low_temp <matched: does not exist>:
+   The query appears to be based on a fictional or non-existent event. There is no publicly known record of House Resolution 7004 being introduced against Governor Kristi Noem. Therefore, the resolution does not exist in official legislative records, and
+>> raw[1] <matched: does not exist>:
+   The question appears to be based on a false or non-existent event. As of now, there is no publicly verified record of House Resolution 7004 being introduced against Governor Kristi Noem. Therefore, the resolution does not exist, and
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the month, day, and year when House Resolution 7004 was introduced. Therefore, based on available data, the answer cannot be determined.
+>> raw[7] <matched: question appears to be>:
+   The question appears to be based on a false or non-existent event. There is no publicly documented House Resolution 7004 introduced against Governor Kristi Noem, nor any evidence of such a resolution being introduced. Therefore, the correct and brief
+>> raw[8] <matched: unknown>:
+   The query about House Resolution 7004 is not publicly documented or verifiable in official records. Therefore, no confirmed date exists for its introduction. Answer: Unknown.
+
+[question_idx=458]
+Q: Which engineer received the Worcester Reed Warner Medal in 1951?
+GOLD: Jacob Pieter Den Hartog
+>> raw[0] <matched: cannot be determined>:
+   None of the provided information allows for a definitive answer to the question about the engineer who received the Worcester Reed Warner Medal in 1951. Therefore, the answer cannot be determined from the given text.
+
+[question_idx=479]
+Q: What is the name and surname of the first African American woman to serve as a Portland City Commissioner in Oregon, U.S.?
+GOLD: Jo Ann A. Hardesty
+>> low_temp <matched: no record of>:
+   There is no record of the first African American woman serving as a Portland City Commissioner in Oregon. As of now, no such individual has held that position. Therefore, the question may contain inaccuracies or misinformation.
+>> raw[5] <matched: no record of>:
+   There is no record of the first African American woman serving as a Portland City Commissioner in Oregon. As of now, no such individual has held that position.
+>> raw[6] <matched: based on a misconception>:
+   There is no record of the first African American woman serving as a Portland City Commissioner in Oregon. As of now, no such individual has held that office. Therefore, the question appears to be based on a misconception or error.
+>> raw[7] <matched: not applicable>:
+   There is no known first African American woman who served as a Portland City Commissioner in Oregon. As of now, the record does not support such a designation. Therefore, the answer is: Not applicable.
+
+[question_idx=566]
+Q: In which month and year did Naresh Trehan (an Indian cardiovascular and cardiothoracic surgeon) move to the USA and become a first-year resident at the Thomas Jefferson University Hospital in Philadelphia?
+GOLD: November 1969
+>> low_temp <matched: contains inaccurac>:
+   Naresh Trehan did not move to the USA. He is an Indian surgeon who has worked primarily in India. There is no credible record of him becoming a first-year resident at Thomas Jefferson University Hospital in Philadelphia. Therefore, the question contains inaccuracies
+>> raw[2] <matched: contains inaccurac>:
+   Naresh Trehan did not move to the USA. He is an Indian surgeon who has worked primarily in India. There is no credible record of him becoming a first-year resident at Thomas Jefferson University Hospital in Philadelphia. Therefore, the question contains inaccuracies
+>> raw[3] <matched: contains inaccurac>:
+   Naresh Trehan did not move to the USA or become a resident at Thomas Jefferson University Hospital. He has been primarily active in India throughout his career. There is no credible record supporting this specific claim. Therefore, the question contains inaccuracies and cannot
+>> raw[4] <matched: no verified>:
+   Naresh Trehan did not move to the USA. He is an Indian surgeon who practiced primarily in India and is not known to have become a resident at Thomas Jefferson University Hospital. Therefore, there is no verified month and year for such a move.
+>> raw[5] <matched: contains inaccurac>:
+   Naresh Trehan did not move to the USA. He is an Indian surgeon who practiced and worked primarily in India. There is no verified record of him becoming a resident at Thomas Jefferson University Hospital in Philadelphia. Therefore, the question contains inaccuracies and
+>> raw[6] <matched: no verified>:
+   Naresh Trehan did not move to the USA. He is an Indian surgeon who practiced primarily in India and is known for his work there. There is no verified record of him becoming a resident at Thomas Jefferson University Hospital in Philadelphia. Therefore, the
+>> raw[9] <matched: contains inaccurac>:
+   Naresh Trehan did not move to the USA. He is an Indian surgeon who has worked primarily in India. There is no credible record of him becoming a first-year resident at Thomas Jefferson University Hospital in Philadelphia. Therefore, the question contains inaccuracies
+
+[question_idx=573]
+Q: What was the date (day/month/year) of the professional rower Albert Hamm's (1860-1891) first professional race?
+GOLD: August 1st, 1880
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown
+>> raw[1] <matched: unknown>:
+   Unknown
+>> raw[2] <matched: unknown>:
+   Unknown
+>> raw[3] <matched: unknown>:
+   Unknown
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=594]
+Q: What are the first name, middle name, and surname of the American politician who served in the California State Assembly from 1967 to 1976 and who died on February 6, 2007?
+GOLD: Leon Douglas Ralph
+>> low_temp <matched: question is incomplete>:
+   The question is incomplete or contains no clear information to identify the American politician. There is no known American politician who served in the California State Assembly from 1967 to 1976 and died on February 6, 20
+>> raw[3] <matched: no widely known>:
+   The question appears to have an error or missing information. There is no widely known American politician who served in the California State Assembly from 1967 to 1976 and died on February 6, 2007,
+
+[question_idx=616]
+Q: What is the surname of the individual who won the Marlow Award in 1983?
+GOLD: Oxtoby
+>> raw[1] <matched: unknown>:
+   Unknown
+>> raw[4] <matched: unknown>:
+   Unknown
+>> raw[5] <matched: unknown>:
+   Unknown
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=634]
+Q: Which president had a meeting with Kwame Nkrumah right before the Kulungugu bomb attack?
+GOLD: Maurice Yameogo
+>> raw[1] <matched: no documented>:
+   None. No U.S. president met with Kwame Nkrumah immediately before the Kulungugu bomb attack. The attack occurred on August 1, 1957, and there is no documented evidence of a presidential meeting with N
+>> raw[3] <matched: no record of>:
+   None. No U.S. president met with Kwame Nkrumah immediately before the Kulungugu bomb attack. The attack occurred on August 1, 1962, and there is no record of a meeting between a U.S
+>> raw[4] <matched: no documented>:
+   None. President Kwame Nkrumah did not meet with any U.S. president before the Kulungugu bomb attack. The attack occurred in 1962, and there is no documented evidence of a meeting between Nkrumah
+
+[question_idx=653]
+Q: In what year was the District of Columbia Baptist Convention excommunicated due to its support of LGBTQ inclusion?
+GOLD: 2018
+>> low_temp <matched: factual error>:
+   The District of Columbia Baptist Convention was not excommunicated for supporting LGBTQ inclusion. There is no credible record of such an event. Therefore, the question contains a factual error.
+>> raw[0] <matched: no verified>:
+   The District of Columbia Baptist Convention was not excommunicated for supporting LGBTQ inclusion. There is no verified record of such an event. Therefore, the question contains a factual inaccuracy.
+>> raw[1] <matched: factual error>:
+   The District of Columbia Baptist Convention was not excommunicated for supporting LGBTQ inclusion. There is no credible record of such an event. Therefore, the question contains a factual error.
+>> raw[2] <matched: no verified>:
+   The District of Columbia Baptist Convention was not excommunicated for supporting LGBTQ inclusion. There is no verified record of such an event. Therefore, the question contains a factual inaccuracy.
+>> raw[3] <matched: factual error>:
+   The District of Columbia Baptist Convention was not excommunicated for supporting LGBTQ inclusion. There is no credible record of such an event. Therefore, the question contains a factual error.
+>> raw[5] <matched: no verified>:
+   The District of Columbia Baptist Convention was not excommunicated for supporting LGBTQ inclusion. There is no verified record of such an event. Therefore, the question contains a factual inaccuracy.
+
+[question_idx=687]
+Q: How many UN Volunteers served in 54 United Nations missions, agencies, funds, and programs across the globe in 2019?
+GOLD:  8,282
+>> low_temp <matched: cannot be determined>:
+   The provided information does not specify the number of UN Volunteers who served in 54 missions in 2019. Therefore, based on the given data, the answer cannot be determined.
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the number of UN Volunteers who served in 54 missions in 2019. Therefore, based on the given data, the answer cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The data on the exact number of UN Volunteers in 2019 is not available in the provided context. Therefore, based on the information given, the answer cannot be determined.
+>> raw[2] <matched: cannot be determined>:
+   The data on the exact number of UN Volunteers in 2019 is not available in the provided knowledge base. Therefore, the answer cannot be determined from the given information.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify the number of UN Volunteers who served in 54 missions in 2019. Therefore, based on the given data, the answer cannot be determined.
+>> raw[4] <matched: not publicly>:
+   The data on the exact number of UN Volunteers in 54 missions in 2019 is not publicly available in official UN reports. Therefore, the number cannot be confirmed.
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the number of UN Volunteers who served in 54 United Nations missions, agencies, funds, and programs in 2019. Therefore, based on the given data, the answer cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The provided information is insufficient to determine the exact number of UN Volunteers serving in 54 United Nations missions, agencies, funds, and programs in 2019. Therefore, the answer cannot be determined from the given data.
+>> raw[8] <matched: cannot be determined>:
+   The provided information does not specify the number of UN Volunteers serving in 2019. Therefore, based on the given data, the answer cannot be determined.
+>> raw[9] <matched: cannot be determined>:
+   The provided information does not specify the number of UN Volunteers who served in 54 United Nations missions, agencies, funds, and programs in 2019. Therefore, based on the given data, the answer cannot be determined.
+
+[question_idx=694]
+Q: Babymetal's song "Road of Resistance" charted at what number on the Billboard World Digital Songs chart for the week of February 21, 2015?
+GOLD: 22
+>> raw[1] <matched: unknown>:
+   No specific chart position is officially recorded for "Road of Resistance" on the Billboard World Digital Songs chart for that week. Therefore, the correct and brief answer is: Unknown.
+
+[question_idx=842]
+Q: On what day, month, and year did the Canadian Centre for Inquiry's Think Again! TV document one of Popoff's performances in Toronto?
+GOLD: May 26, 2011
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: cannot be determined>:
+   The information provided does not specify the date of the Canadian Centre for Inquiry's Think Again! TV document of one of Popoff's performances in Toronto. Therefore, the date cannot be determined from the given data.
+>> raw[1] <matched: no verified>:
+   The question appears to be based on a non-existent or fictional event. There is no verified record of the Canadian Centre for Inquiry's "Think Again! TV" documenting a performance by Popoff in Toronto, nor is there public information confirming such an event
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown.
+
+[question_idx=944]
+Q: Who played Creon in Antigone at the Epidaurus Festival 2022?
+GOLD: Vasilis Bisbikis played Creon in Antigone at the Epidaurus Festival in 2022.
+>> low_temp <matched: no information>:
+   No information available.
+>> raw[0] <matched: no information>:
+   No information available.
+>> raw[1] <matched: no information>:
+   No information available on who played Creon in Antigone at the Epidaurus Festival 2022.
+>> raw[2] <matched: no information>:
+   No information available.
+>> raw[3] <matched: no information>:
+   No information available.
+>> raw[4] <matched: no information>:
+   No information available.
+>> raw[5] <matched: no information>:
+   No information available on who played Creon in Antigone at the Epidaurus Festival 2022.
+>> raw[6] <matched: no information>:
+   No information available.
+>> raw[7] <matched: no information>:
+   No information available on who played Creon in Antigone at the Epidaurus Festival 2022.
+>> raw[8] <matched: no information>:
+   No information available on who played Creon in Antigone at the Epidaurus Festival 2022.
+>> raw[9] <matched: no information>:
+   No information available.
+
+[question_idx=982]
+Q: Who directed S1E8 of Abstract: The Art of Design?
+GOLD: Sarina Roma
+>> low_temp <matched: unknown>:
+   Unknown
+>> raw[0] <matched: unknown>:
+   Unknown
+>> raw[1] <matched: unknown>:
+   Unknown
+>> raw[2] <matched: unknown>:
+   Unknown
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify who directed S1E8 of *Abstract: The Art of Design*. Therefore, based on available data, the director cannot be determined.
+>> raw[4] <matched: unknown>:
+   Unknown
+>> raw[5] <matched: unknown>:
+   Unknown
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify who directed S1E8 of *Abstract: The Art of Design*. Therefore, based on available data, the answer cannot be determined.
+>> raw[7] <matched: unknown>:
+   Unknown
+>> raw[8] <matched: unknown>:
+   Unknown
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=991]
+Q: What were the first, middle, and last names of the third deputy speaker of the National Assembly of Pakistan?
+GOLD: Cecil Edward Gibbon
+>> raw[2] <matched: unknown>:
+   The question cannot be answered with available information. There is no publicly known record of the first, middle, and last names of the third deputy speaker of the National Assembly of Pakistan. The answer is unknown.
+>> raw[6] <matched: unknown>:
+   The question cannot be answered with certainty based on available public records. There is no verified or widely recognized information about the third deputy speaker of the National Assembly of Pakistan, including their full name. Therefore, the answer is unknown.
+>> raw[7] <matched: unknown>:
+   The question cannot be answered with available information. There is no publicly known record of the first, middle, and last names of the third deputy speaker of the National Assembly of Pakistan. Therefore, the answer is unknown.
+>> raw[8] <matched: unknown>:
+   The question cannot be answered with available information. There is no publicly known record of the first, middle, and last names of the third deputy speaker of the National Assembly of Pakistan. Therefore, the answer is unknown.
+
+[question_idx=1044]
+Q: Who among the people who proposed the three-stage system in an article titled "Stone Age Cultures of South Africa" was a civil engineer?
+GOLD: Clarence van Riet Lowe
+>> low_temp <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known article titled "Stone Age Cultures of South Africa" that proposes a three-stage system with a civil engineer among the authors. Additionally, no prominent civil engineer is historically associated with
+>> raw[2] <matched: no widely known>:
+   The question refers to an article titled "Stone Age Cultures of South Africa" and asks which of the proposers was a civil engineer. However, there is no widely known or verified article with that exact title by individuals associated with a three-stage system
+>> raw[4] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known article titled "Stone Age Cultures of South Africa" that proposes a three-stage system with a civil engineer among the authors. Additionally, no prominent civil engineer is historically linked to
+>> raw[5] <matched: no widely known>:
+   The question appears to contain a factual inaccuracy or confusion. There is no widely known article titled "Stone Age Cultures of South Africa" that proposes a three-stage system with a civil engineer among the authors. Additionally, no prominent civil engineer is known
+>> raw[6] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known article titled "Stone Age Cultures of South Africa" that proposes a three-stage system with a civil engineer as one of the authors. Additionally, no credible source links a civil
+>> raw[8] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known article titled "Stone Age Cultures of South Africa" that proposes a three-stage system with a civil engineer as one of the proposers. Therefore, based on available historical and
+
+[question_idx=1083]
+Q: What was the name of the Andalusi poet Mansa Musa met on his return journey from his pilgrimage to Mecca between 1324 and 1325?
+GOLD: Abu Ishaq al-Sahili.
+>> low_temp <matched: no historical record>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. Therefore, the name cannot be verified.
+>> raw[0] <matched: factual error>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca between 1324 and 1325. Therefore, the question contains a factual error or misinformation.
+>> raw[1] <matched: no historical record>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. Therefore, the question contains a factual inaccuracy or confusion.
+>> raw[2] <matched: based on a misconception>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. The question appears to be based on a misconception or error. Therefore,
+>> raw[3] <matched: no historical record>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. Therefore, the name cannot be confirmed.
+>> raw[4] <matched: cannot be determined>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. Therefore, the name cannot be determined.
+>> raw[5] <matched: no historical record>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. The name of such a poet is not definitively known or documented.
+>> raw[6] <matched: based on a misconception>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. The question appears to be based on a misconception or fictional detail. Therefore
+>> raw[7] <matched: cannot be determined>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. Therefore, the name cannot be determined.
+>> raw[8] <matched: based on a misconception>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. The question appears to be based on a misconception or fictional detail. Therefore
+>> raw[9] <matched: based on a misconception>:
+   There is no historical record of Mansa Musa meeting a specific Andalusi poet during his return journey from Mecca in 1324–1325. The question appears to be based on a misconception or fictional detail. Therefore
+
+[question_idx=1303]
+Q: In August 2012, what was the address of the First Church of Christ, Scientist that W. V. Grant purchased?
+GOLD: 1508 Cadiz Street, Dallas, TX, 75201
+>> low_temp <matched: not publicly>:
+   The address is not publicly available or verifiable.
+>> raw[0] <matched: not publicly>:
+   The address is not publicly known or verified.
+>> raw[1] <matched: not publicly>:
+   The address is not publicly available or verifiable.
+>> raw[2] <matched: not publicly>:
+   The address is not publicly available or verifiable.
+>> raw[3] <matched: not publicly>:
+   The address is not publicly available or verified in reliable sources.
+>> raw[4] <matched: not publicly>:
+   The address is not publicly available or verified in reliable sources.
+>> raw[5] <matched: not publicly>:
+   The address is not publicly available or verified in reliable sources.
+>> raw[6] <matched: not publicly>:
+   The address is not publicly available or verifiable.
+>> raw[7] <matched: not publicly>:
+   The address is not publicly available or verified in reliable sources.
+>> raw[8] <matched: not publicly>:
+   The address is not publicly available or verifiable from reliable sources.
+>> raw[9] <matched: not publicly>:
+   The address is not publicly available or verifiable from reliable sources.
+
+[question_idx=1307]
+Q: Who was the rector of Hacettepe University in 2006?
+GOLD: Prof. Dr. Tunçalp ÖZGEN
+>> low_temp <matched: cannot be determined>:
+   The provided information does not specify who the rector of Hacettepe University was in 2006. Therefore, based on the given data, the answer cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   There is no publicly available record indicating who the rector of Hacettepe University was in 2006. Therefore, based on available information, the answer cannot be determined.
+>> raw[2] <matched: cannot be determined>:
+   There is no publicly available record indicating who the rector of Hacettepe University was in 2006. Therefore, the answer cannot be determined from available information.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify who the rector of Hacettepe University was in 2006. Therefore, based on available data, the answer cannot be determined.
+>> raw[4] <matched: cannot be determined>:
+   The provided information does not specify who the rector of Hacettepe University was in 2006. Therefore, based on the given data, the answer cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify who the rector of Hacettepe University was in 2006. Therefore, based on the given data, the answer cannot be determined.
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not specify who the rector of Hacettepe University was in 2006. Therefore, based on the given data, the answer cannot be determined.
+>> raw[9] <matched: cannot be determined>:
+   The provided information does not specify who the rector of Hacettepe University was in 2006. Therefore, based on available data, the answer cannot be determined.
+
+[question_idx=1390]
+Q: In what year was Elliott Fitch Shepard nominated for United States Attorney for the Southern District of New York by President Rutherford B. Hayes?
+GOLD: 1881
+>> raw[8] <matched: no record of>:
+   Elliott Fitch Shepard was not nominated by President Rutherford B. Hayes. Hayes served from 1877 to 1881, and Shepard was active in politics later. There is no record of such a nomination. The
+
+[question_idx=1463]
+Q: How many additional dollars did Carmen and Natalie borrow from their uncle Cicero in Season 2 of The Bear?
+GOLD: $500,000
+>> raw[4] <matched: cannot be determined>:
+   The information about Carmen and Natalie borrowing money from their uncle Cicero in Season 2 of *The Bear* is not present in available sources or canonical details of the show. Therefore, the amount cannot be determined.
+>> raw[5] <matched: cannot be determined>:
+   The information about Carmen and Natalie borrowing money from their uncle Cicero in Season 2 of *The Bear* is not present in publicly available sources or official episodes. Therefore, the amount cannot be determined.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: cannot be confirmed>:
+   The information about Carmen and Natalie borrowing money from their uncle Cicero in Season 2 of *The Bear* is not present in publicly available sources or episode details. Therefore, the amount cannot be confirmed.
+>> raw[9] <matched: cannot be determined>:
+   The information about Carmen and Natalie borrowing money from their uncle Cicero in Season 2 of *The Bear* is not available or verifiable in official sources. Therefore, the amount cannot be determined.
+
+[question_idx=1557]
+Q: What is the full name of the individual who cheated in the Comrades Marathon in 1993?
+GOLD: Herman Matthee
+>> low_temp <matched: unknown>:
+   There is no publicly known individual confirmed to have cheated in the Comrades Marathon in 1993. The question may be based on a misconception or misinformation. Answer: Unknown.
+>> raw[2] <matched: unknown>:
+   There is no publicly known individual confirmed to have cheated in the Comrades Marathon in 1993. The question may be based on a misunderstanding or misinformation. Answer: Unknown.
+>> raw[3] <matched: based on a misconception>:
+   There is no publicly known individual who cheated in the Comrades Marathon in 1993. The question may be based on a misconception or error.
+>> raw[4] <matched: unknown>:
+   There is no publicly known individual confirmed to have cheated in the Comrades Marathon in 1993. The question may be based on a misunderstanding or misinformation. Answer: Unknown.
+>> raw[5] <matched: unknown>:
+   There is no publicly verified record of an individual cheating in the Comrades Marathon in 1993. The question may be based on a misconception or misinformation. Therefore, the answer is: Unknown.
+>> raw[7] <matched: unknown>:
+   There is no publicly known individual who cheated in the Comrades Marathon in 1993. The question may be based on a misconception or misinformation. Answer: Unknown.
+>> raw[9] <matched: unknown>:
+   There is no publicly known individual confirmed to have cheated in the Comrades Marathon in 1993. The answer is unknown.
+
+[question_idx=1559]
+Q: What is the first and last name of the professor who received the Royal Society of Chemistry Bader Award in 2021?
+GOLD: Alison Hulme
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the first and last name of the professor who received the Royal Society of Chemistry Bader Award in 2021. Therefore, the answer cannot be determined from the given data.
+>> raw[1] <matched: cannot be determined>:
+   The information requested cannot be determined from available public sources.
+>> raw[2] <matched: cannot be determined>:
+   The provided information does not specify the first and last name of the professor who received the Royal Society of Chemistry Bader Award in 2021. Therefore, the answer cannot be determined from the given data.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not include the first and last name of the professor who received the Royal Society of Chemistry Bader Award in 2021. Therefore, the answer cannot be determined from the given data.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify the first and last name of the professor who received the Royal Society of Chemistry Bader Award in 2021. Therefore, based on available data, the answer cannot be determined.
+>> raw[7] <matched: cannot be determined>:
+   The information provided does not specify the first and last name of the professor who received the Royal Society of Chemistry Bader Award in 2021. Therefore, based on available data, the answer cannot be determined.
+>> raw[8] <matched: cannot be determined>:
+   The information requested cannot be determined from available sources.
+
+[question_idx=1575]
+Q: Within plus or minus one minute, when did Rober Pier receive a yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022?
+GOLD: 52nd minute
+>> low_temp <matched: not publicly>:
+   The exact time of Rober Pier's yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available within plus or minus one minute of precision. Therefore, the event
+>> raw[0] <matched: not publicly>:
+   The exact minute when Rober Pier received a yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available or verifiable with precision within a one-minute margin. Therefore
+>> raw[1] <matched: cannot be confirmed>:
+   There is no publicly available record of a yellow card being shown to Rober Pier in the La Liga match between Levante and Real Sociedad on May 6, 2022. Therefore, the exact time cannot be confirmed.
+>> raw[2] <matched: not publicly>:
+   The exact minute when Rober Pier received a yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available or verifiable with precision within one minute. Therefore, the
+>> raw[3] <matched: not publicly>:
+   The exact time when Rober Pier received a yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available with precision within one minute. Therefore, no specific time can
+>> raw[5] <matched: cannot be verified>:
+   There is no publicly available record of a yellow card received by Rober Pier in the La Liga match between Levante and Real Sociedad on May 6, 2022. Therefore, the exact time cannot be verified.
+>> raw[6] <matched: not publicly>:
+   The exact minute when Rober Pier received a yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available or verifiable with the precision requested. Therefore, no specific
+>> raw[7] <matched: cannot be confirmed>:
+   There is no publicly available record of a yellow card received by Rober Pier in the La Liga match between Levante and Real Sociedad on May 6, 2022. Therefore, the exact time cannot be confirmed.
+>> raw[8] <matched: not publicly>:
+   The exact time of Rober Pier's yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available within plus or minus one minute of precision. Therefore, no specific
+>> raw[9] <matched: not publicly>:
+   The exact minute when Rober Pier received a yellow card in the La Liga match between Levante and Real Sociedad on May 6, 2022, is not publicly available or verifiable within the provided context. Therefore, no accurate
+
+[question_idx=1592]
+Q: What is the name of the campus where Princess Shruti Rajya Lakshmi Devi Shah completed her bachelor's degree?
+GOLD: Padma Kanya Campus 
+>> raw[6] <matched: no such>:
+   Princess Shruti Rajya Lakshmi Devi Shah did not complete a bachelor's degree. She is a member of the royal family of Nepal and did not pursue higher education at a university campus. Therefore, there is no such campus associated with
+
+[question_idx=1631]
+Q: How many candidates entered their work in the Prix de Rome in the engraving category in 1805?
+GOLD: 1
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: unknown>:
+   Unknown
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   The provided information is insufficient to determine how many candidates entered their work in the engraving category at the Prix de Rome in 1805. Answer: Unknown.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify the number of candidates who entered their work in the engraving category at the Prix de Rome in 1805. Therefore, the answer cannot be determined from the given data.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown.
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=1647]
+Q: What day, month, and year did the Christchurch, New Zealand, real estate agent Yanfei Bao go missing?
+GOLD: 19 of July of 2023
+>> raw[0] <matched: not publicly>:
+   The information about Yanfei Bao going missing is not publicly available or verifiable in reliable sources. Therefore, no confirmed date can be provided.
+>> raw[2] <matched: not publicly>:
+   The information regarding Yanfei Bao going missing is not publicly available or verified in reliable sources. As of now, no confirmed date of disappearance is officially recorded. Therefore, the question cannot be answered with certainty.
+>> raw[5] <matched: no verified>:
+   There is no publicly known record of a real estate agent named Yanfei Bao going missing in Christchurch, New Zealand. The query may contain inaccuracies or be based on misinformation. As such, no verified date can be provided.
+>> raw[6] <matched: no reliable>:
+   The information about Yanfei Bao going missing is not publicly confirmed or verified. As of now, there is no reliable record of a real estate agent named Yanfei Bao going missing in Christchurch, New Zealand. Therefore, the date
+>> raw[7] <matched: not publicly>:
+   The information about Yanfei Bao going missing is not publicly available or verifiable in reliable sources. Therefore, no accurate date can be provided.
+>> raw[9] <matched: not publicly>:
+   The information regarding Yanfei Bao's disappearance is not publicly confirmed or officially documented in reliable sources. Therefore, no verified date can be provided.
+
+[question_idx=1721]
+Q: Why was Bessie Smith dismissed from Black Swan Records during auditions?
+GOLD:  she was considered too rough 
+>> low_temp <matched: based on a misconception>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—there is no historical record supporting this claim. She was actually signed to Black Swan Records and had a successful career there. The statement is likely false or based on a misconception.
+>> raw[0] <matched: no historical record>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—she was actually signed to Black Swan Records and had a successful career there. There is no historical record supporting that she was dismissed during auditions. The claim is inaccurate.
+>> raw[1] <matched: no historical record>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—there is no historical record supporting this claim. She was actually signed to Black Swan Records and released several records with them in the 1920s. The statement is
+>> raw[2] <matched: no historical record>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—there is no historical record supporting this claim. She was actually signed to Black Swan Records and had a successful career with the label. The statement is likely incorrect or based on a
+>> raw[3] <matched: no historical record>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—there is no historical record supporting this claim. She was actually signed to Black Swan Records and released successful recordings. The idea that she was dismissed is a myth.
+>> raw[4] <matched: based on a misconception>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—there is no historical evidence supporting this claim. She was actually signed to Black Swan Records and had a successful career with them. The statement is likely false or based on a misconception
+>> raw[7] <matched: did not exist>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—there is no historical evidence to support this claim. Black Swan Records did not exist, and Bessie Smith was not associated with it. She was a prominent blues singer who
+>> raw[8] <matched: no historical record>:
+   Bessie Smith was not dismissed from Black Swan Records during auditions—she was actually signed to the label and had a successful career there. There is no historical record supporting that she was dismissed during auditions. The claim is false.
+
+[question_idx=1725]
+Q: How old was Montreal native Charles Whitlaw in 1846 when he bought a grist mill on Grand River Street from Robert Kirkwood in Paris, Ontario?
+GOLD: Twenty two
+>> low_temp <matched: unknown>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it is not possible to determine his age based on the given details. Answer: Unknown.
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it cannot be determined from the given details.
+>> raw[1] <matched: unknown>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it is not possible to determine his age based on the given details. Answer: Unknown.
+>> raw[2] <matched: unknown>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it is not possible to determine his age based on the given details. Answer: Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it is not possible to determine his age based on the given data. Answer: Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, his age cannot be determined from the given data.
+>> raw[7] <matched: unknown>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it is not possible to determine his age based on the given details. Answer: Unknown.
+>> raw[8] <matched: cannot be determined>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it cannot be determined from the given data.
+>> raw[9] <matched: cannot be determined>:
+   The provided information does not specify Charles Whitlaw's age in 1846. Therefore, it cannot be determined from the given data.
+
+[question_idx=1796]
+Q: What store did Fresh Cut Grass get their blue leather duster from while in Uthodurn during Critical Role's Campaign 3?
+GOLD: Catlyn's Clothier
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown.
+>> raw[1] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown.
+>> raw[9] <matched: unknown>:
+   Unknown.
+
+[question_idx=1804]
+Q: On her Jay-Z & Ciara Live concert tour, in what city, town, or village did Ciara perform on July 10, 2009?
+GOLD: Uncasville
+>> low_temp <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the location cannot be determined.
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the location cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the answer cannot be determined.
+>> raw[2] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the location cannot be determined.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the location cannot be determined.
+>> raw[4] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on the given data, the answer cannot be determined.
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on the given data, the answer cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the location cannot be determined.
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the answer cannot be determined.
+>> raw[8] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on available data, the location cannot be determined.
+>> raw[9] <matched: cannot be determined>:
+   The provided information does not specify the city where Ciara performed on July 10, 2009, during the Jay-Z & Ciara Live concert tour. Therefore, based on the given data, the answer cannot be determined.
+
+[question_idx=1806]
+Q: Who was the first transgender person in Argentina to get her name and gender on her government-issued ID legally changed?
+GOLD: Florencia de la V
+>> raw[1] <matched: unclear>:
+   No specific publicly verified individual has been officially confirmed as the first transgender person in Argentina to legally change their name and gender on a government ID. The information remains unclear or unverified.
+
+[question_idx=1828]
+Q: Can you provide me with the DOI of the paper "Generating Semantic Maps through Multidimensional Scaling: Linguistic Applications and Theory"?
+GOLD: 10.1515/cllt-2021-0018
+>> raw[3] <matched: not publicly>:
+   The DOI for the paper "Generating Semantic Maps through Multidimensional Scaling: Linguistic Applications and Theory" is not publicly available or verifiable in standard databases. Please consult academic databases like Google Scholar or the journal's official website for confirmation.
+>> raw[7] <matched: not publicly>:
+   The DOI for the paper "Generating Semantic Maps through Multidimensional Scaling: Linguistic Applications and Theory" is not publicly available or verifiable in standard databases. Please consult academic databases like Google Scholar or the journal's official website for confirmation.
+>> raw[8] <matched: not publicly>:
+   The DOI for the paper "Generating Semantic Maps through Multidimensional Scaling: Linguistic Applications and Theory" is not publicly available or verifiable in standard databases. Please consult academic resources like Google Scholar or the publisher's website for confirmation.
+
+[question_idx=1866]
+Q: What specific date (month, day, year) was the very first Q Con hosted by Prism Comics in West Hollywood?
+GOLD: June 18, 2022
+>> low_temp <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[1] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[4] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[5] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[6] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[7] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[8] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or documented.
+>> raw[9] <matched: not publicly>:
+   The specific date of the very first Q Con hosted by Prism Comics in West Hollywood is not publicly available or verifiable.
+
+[question_idx=1907]
+Q: How many episodes was Ginnifer Goodwin in "Big Love: In the Beginning"?
+GOLD: 2
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown.
+
+[question_idx=1924]
+Q: What month, day, and year did Feodor Timofeyev, consul for the Soviet Union in Georgetown, visit Jonestown for two days and give a speech?
+GOLD: 2 October 1978
+>> low_temp <matched: no verified>:
+   There is no verified historical record of Feodor Timofeyev visiting Jonestown or giving a speech there. The claim is likely false or based on misinformation. Therefore, no valid date can be provided.
+>> raw[0] <matched: no verified>:
+   No verified record confirms Feodor Timofeyev visiting Jonestown in 1978. The claim is likely false or unverified.
+>> raw[1] <matched: no verified>:
+   There is no verified historical record of Feodor Timofeyev visiting Jonestown or giving a speech there. The claim is likely false or based on misinformation. Therefore, no valid date can be provided.
+>> raw[2] <matched: unknown>:
+   No record confirms Feodor Timofeyev visiting Jonestown. The claim is likely false or based on misinformation. Answer: Unknown.
+>> raw[3] <matched: question appears to be>:
+   There is no credible historical record of Feodor Timofeyev visiting Jonestown or giving a speech there. The question appears to be based on a false or fabricated event. Therefore, no valid date can be provided.
+>> raw[4] <matched: no verified>:
+   There is no verified historical record of Feodor Timofeyev visiting Jonestown or giving a speech there. The question appears to be based on a false or fictional premise. Therefore, no valid date can be provided.
+>> raw[5] <matched: unknown>:
+   There is no verified historical record of Feodor Timofeyev visiting Jonestown or giving a speech there. The claim is likely false or based on misinformation. Answer: Unknown.
+>> raw[6] <matched: no verified>:
+   No historical record confirms Feodor Timofeyev visiting Jonestown in 1978. The claim is likely false or based on misinformation. Therefore, there is no verified date for such an event.
+>> raw[8] <matched: question appears to be>:
+   There is no credible historical record of Feodor Timofeyev visiting Jonestown or giving a speech there. The question appears to be based on a false or fabricated premise. Therefore, no valid date can be provided.
+
+[question_idx=1959]
+Q: What fort was Thomas Waller of Branchele knighted at by Thomas Lord Burgh, Lord Deputy of Ireland, in 1597?
+GOLD: Blackwater fort
+>> raw[0] <matched: no verified>:
+   The question appears to contain a historical inaccuracy or confusion. Thomas Waller of Branchele was not knighted by Thomas Lord Burgh at a fort in 1597. There is no verified historical record of such an event. Therefore
+>> raw[1] <matched: unclear>:
+   The query is unclear or contains a historical inaccuracy. Thomas Waller of Branchele was not knighted by Thomas Lord Burgh at a fort in 1597. There is no verifiable historical record of such an event. Therefore
+>> raw[2] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no historically documented event of Thomas Waller of Branchele being knighted at a fort by Thomas Lord Burgh in 1597. Therefore, based on reliable historical records
+>> raw[3] <matched: unclear>:
+   The query is unclear or contains a factual error. Thomas Waller of Branchele was not knighted at a fort by Thomas Lord Burgh in 1597. There is no verified historical record supporting this event. Therefore, the correct
+>> raw[5] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no historical record of Thomas Waller of Branchele being knighted at a fort by Thomas Lord Burgh in 1597. Therefore, based on verified historical sources,
+>> raw[6] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no historical record of Thomas Waller of Branchele being knighted at a fort by Thomas Lord Burgh in 1597. Therefore, based on verified historical sources,
+>> raw[8] <matched: no historical record>:
+   The question appears to contain a fictional or incorrect premise. There is no historical record of Thomas Waller of Branchele being knighted at a fort by Thomas Lord Burgh in 1597. Therefore, based on verified historical sources,
+>> raw[9] <matched: factual error>:
+   The query appears to contain a factual error or misunderstanding. Thomas Waller of Branchele was not knighted by Thomas Lord Burgh at a fort in 1597. There is no historical record supporting this event. Therefore, the correct
+
+[question_idx=2059]
+Q: Who was the Scotsman that formed Clyde Pinelands Football Club in Cape Town in 1898?
+GOLD: Daddy McCloud
+>> low_temp <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a "Scotsman" forming a football club called Clyde Pinelands in Cape Town in 1898. Clyde F.C. (Cly
+>> raw[0] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a Scotsman forming a "Clyde Pinelands Football Club" in Cape Town in 1898. Clyde Pinelands is a well
+>> raw[1] <matched: no reliable>:
+   The question contains a factual error. Clyde Pinelands Football Club was not formed in 1898 by a Scotsman in Cape Town. There is no reliable historical record supporting this claim. Therefore, the question is based on a misconception or
+>> raw[2] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a "Scotsman" forming a football club called Clyde Pinelands in Cape Town in 1898. Clyde Pinelands Football Club was
+>> raw[3] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a "Scotsman" forming a "Clyde Pinelands Football Club" in Cape Town in 1898. Clyde F.C.
+>> raw[4] <matched: no historical record>:
+   There is no historical record of a Scotsman forming Clyde Pinelands Football Club in Cape Town in 1898. The club is likely a fictional or misattributed reference. Therefore, the question cannot be answered with factual accuracy.
+>> raw[5] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a "Scotsman" forming a "Clyde Pinelands Football Club" in Cape Town in 1898. The name "C
+>> raw[6] <matched: factual error>:
+   The question contains a factual error. Clyde Pinelands Football Club was not formed in 1898, and there is no known historical record of a Scotsman forming such a club in Cape Town during that time. The answer cannot be verified
+>> raw[7] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a Scotsman forming a football club called Clyde Pinelands in Cape Town in 1898. Clyde F.C. is a Scottish club, not
+>> raw[8] <matched: unknown>:
+   There is no known record of a Scotsman forming Clyde Pinelands Football Club in Cape Town in 1898. The information appears to be incorrect or based on a misunderstanding. Answer: Unknown.
+>> raw[9] <matched: factual error>:
+   The question appears to contain a factual error or confusion. There is no known historical record of a Scotsman forming a football club called "Clyde Pinelands" in Cape Town in 1898. "Clyde" is
+
+[question_idx=2131]
+Q: Who created Ida Mntwana's bronze statue?
+GOLD: Sarah Lovejoy
+>> low_temp <matched: unclear>:
+   The question is unclear or contains inaccuracies. Ida Mntwana is a historical figure, and there is no widely known bronze statue of her attributed to a specific creator. Without additional context, a definitive answer cannot be provided.
+>> raw[5] <matched: unclear>:
+   The question is unclear or incomplete. "Ida Mntwana" is a historical figure, and there is no widely known bronze statue of her attributed to a specific creator. Without additional context, a definitive answer cannot be provided.
+>> raw[7] <matched: factual error>:
+   The question appears to contain a factual error or confusion. Ida Mntwana is a historical figure, and there is no publicly known bronze statue of her created by a specific artist. As such, based on available information, the creator of a
+
+[question_idx=2169]
+Q: What Toronto doctoral student coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama?
+GOLD: Cecil J Nesbitt
+>> low_temp <matched: no such>:
+   There is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama. The work is attributed to Tadashi Nakayama, and no such coauthor
+>> raw[1] <matched: no such>:
+   There is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama. The work is attributed to Tadashi Nakayama, and no such coauthor
+>> raw[2] <matched: factual error>:
+   The question appears to contain a factual error. Tadashi Nakayama was a Japanese mathematician, and there is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with him.
+>> raw[3] <matched: factual error>:
+   The question contains a factual error. Tadashi Nakayama did not coauthor a paper titled "Note on Symmetric Algebras" in 1938 with a Toronto doctoral student. Moreover, Kunihiko Kodaira was a
+>> raw[4] <matched: no such>:
+   There is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama. The work is attributed to Tadashi Nakayama, and no such coauthor
+>> raw[5] <matched: no such>:
+   There is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama. The work is attributed to Tadashi Nakayama, and no such coauthor
+>> raw[6] <matched: no such>:
+   There is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama. The work is attributed to Tadashi Nakayama, and no such coauthor
+>> raw[7] <matched: no such>:
+   There is no known Toronto doctoral student who coauthored "Note on Symmetric Algebras (1938)" with Tadashi Nakayama. The work is attributed to Tadashi Nakayama, and no such coauthor
+>> raw[9] <matched: factual error>:
+   The question appears to contain a factual error. Tadashi Nakayama was a Japanese mathematician, and there is no known Toronto doctoral student who coauthored a paper titled "Note on Symmetric Algebras (1938)"
+
+[question_idx=2174]
+Q: At what baseball field did the Bluff City Bombers of the Central Illinois Collegiate League play their home games from 1998 to 2004?
+GOLD: Lloyd Hopkins Field
+>> low_temp <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, based on the given data, the answer cannot be determined.
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games. Therefore, based on the given data, the answer cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, based on the given data, the answer cannot be determined.
+>> raw[2] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games. Therefore, based on the given data, the answer cannot be determined.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, based on the given data, the answer cannot be determined.
+>> raw[4] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, the answer cannot be determined from the given text.
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, based on the given data, the answer cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games. Therefore, based on the given data, the answer cannot be determined.
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, based on available data, the answer cannot be determined.
+>> raw[8] <matched: cannot be determined>:
+   The provided information does not specify the baseball field where the Bluff City Bombers played their home games from 1998 to 2004. Therefore, based on the given data, the answer cannot be determined.
+
+[question_idx=2187]
+Q: What is the name of the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree?
+GOLD: Kathmandu College of Management.
+>> low_temp <matched: cannot be determined>:
+   The provided information does not specify the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree. Therefore, based on available data, the answer cannot be determined.
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree. Therefore, based on available data, the answer cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The provided information does not specify the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree. Therefore, based on available data, the answer cannot be determined.
+>> raw[2] <matched: unknown>:
+   Unknown
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree. Therefore, based on available data, the answer cannot be determined.
+>> raw[4] <matched: unknown>:
+   Unknown
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree. Therefore, based on available data, the answer cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify the college where Prince Nirajan Bir Bikram Shah Dev completed his bachelor's degree. Therefore, based on available data, the answer cannot be determined.
+>> raw[7] <matched: unknown>:
+   Unknown
+>> raw[8] <matched: unknown>:
+   Unknown
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=2235]
+Q: What is the name of the computer scientist who supervised the doctoral thesis of Annamaria Beatrice Amenta at the University of California, Berkeley?
+GOLD:  Raimund Seidel
+>> raw[0] <matched: unknown>:
+   No known public information confirms the supervisor of Annamaria Beatrice Amenta's doctoral thesis at UC Berkeley. Therefore, the answer is: Unknown.
+>> raw[5] <matched: cannot be determined>:
+   No known public information confirms the supervisor of Annamaria Beatrice Amenta's doctoral thesis at UC Berkeley. Therefore, the answer cannot be determined from available data.
+
+[question_idx=2271]
+Q: In which year was the "People's Action Committee" (a political party) established in Kashmir?
+GOLD: 1963
+>> low_temp <matched: factual error>:
+   The "People's Action Committee" was not established in Kashmir. There is no credible historical record of such a political party being founded there. Therefore, the question contains a factual error.
+>> raw[0] <matched: factual error>:
+   The "People's Action Committee" was not established in Kashmir. It is a misattribution; no such political party exists in Kashmir with that name. Therefore, the question is based on a factual error.
+>> raw[1] <matched: factual error>:
+   The "People's Action Committee" was not established in Kashmir. There is no verified historical record of such a political party being founded there. Therefore, the question contains a factual error or misunderstanding.
+>> raw[2] <matched: based on a misconception>:
+   The "People's Action Committee" was not established in Kashmir. There is no verified historical record of such a political party being founded there. Therefore, the question may be based on a misconception or error.
+>> raw[3] <matched: question appears to be>:
+   The "People's Action Committee" was not established in Kashmir. There is no credible historical record of such a political party being founded there. Therefore, the question appears to be based on a misunderstanding or misinformation.
+>> raw[4] <matched: no such>:
+   The "People's Action Committee" was not established in Kashmir. It is a misidentification; no such political party exists in Kashmir with that name. Therefore, the question contains an error.
+>> raw[5] <matched: no such>:
+   The "People's Action Committee" was not established in Kashmir. It is a fictional or non-existent political party in that context. No such party has been officially recognized or established in Kashmir. Therefore, there is no valid year for its establishment.
+>> raw[6] <matched: contains inaccurac>:
+   The "People's Action Committee" was not established in Kashmir. There is no verified historical record of such a political party being founded there. Therefore, the question contains inaccuracies or misinformation.
+>> raw[7] <matched: no verified>:
+   The "People's Action Committee" was not established in Kashmir. It is a misstatement or confusion with a different entity. There is no verified historical record of a political party by that name being established in Kashmir. Therefore, the correct answer is:
+>> raw[8] <matched: no verified>:
+   The "People's Action Committee" was not established in Kashmir. It is a misinformation or confusion with a real political entity. There is no verified record of such a party being established in Kashmir. Therefore, the question cannot be answered with accuracy.
+>> raw[9] <matched: factual error>:
+   The "People's Action Committee" was not established in Kashmir. There is no credible record of such a political party being established there. Therefore, the question contains a factual error.
+
+[question_idx=2350]
+Q: How many Long-Evans rats were used in the scientific paper, "A role for anterior thalamic nuclei in affective cognition: interaction with environmental conditions," published in Hippocampus in May 2013?
+GOLD: 102
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on the given data, the answer cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in the study. Therefore, based on the given data, the number cannot be determined.
+>> raw[2] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on available data, the number cannot be determined.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on the given data, the number cannot be determined.
+>> raw[4] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on the given text, the answer cannot be determined.
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on the given data, the number cannot be determined.
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on available data, the number cannot be determined.
+>> raw[9] <matched: cannot be determined>:
+   The provided information does not specify the number of Long-Evans rats used in that study. Therefore, based on available data, the number cannot be determined.
+
+[question_idx=2422]
+Q: What is the surname of the individual who won the Herman Skolnik Award in 1977?
+GOLD: Garfield
+>> raw[1] <matched: no information>:
+   No information available to confirm the surname of the individual who won the Herman Skolnik Award in 1977.
+>> raw[8] <matched: unknown>:
+   No public record identifies the surname of the individual who won the Herman Skolnik Award in 1977. Therefore, the answer is unknown.
+
+[question_idx=2430]
+Q: What is the full name of the first Black woman to become president of an NFL (National Football League) team?
+GOLD: Sandra Douglass Morgan
+>> low_temp <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. The question contains a factual error. Answer: None.
+>> raw[0] <matched: factual error>:
+   There is no known first Black woman who has become president of an NFL team. Therefore, the question contains a factual error or misunderstanding. Answer: None.
+>> raw[1] <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. The NFL does not have a president who is a woman, let alone a Black woman. Therefore, the question contains a factual error. Answer: None.
+>> raw[2] <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. The NFL does not have a team with a Black woman as its president. Therefore, the question contains a factual error or misunderstanding. Answer: None.
+>> raw[3] <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. The question contains a factual error. Answer: None.
+>> raw[4] <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. The question contains a factual error. Answer: None.
+>> raw[5] <matched: factual error>:
+   There is no known first Black woman who has become president of an NFL team. Therefore, the question contains a factual error or misconception. Answer: None.
+>> raw[6] <matched: factual error>:
+   There is no known first Black woman who has become president of an NFL team. Therefore, the question contains a factual error or misstatement. Answer: None.
+>> raw[7] <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. The question contains a factual error. Answer: None.
+>> raw[8] <matched: factual error>:
+   There is no known first Black woman who became president of an NFL team. Therefore, the question contains a factual error or misunderstanding. Answer: None.
+>> raw[9] <matched: factual error>:
+   There is no known first Black woman who has become president of an NFL team. As of now, no Black woman has held that position. Therefore, the question contains a factual error. Answer: None.
+
+[question_idx=2457]
+Q: In the 2021 census, what was the population of Townview, a suburb in the City of Mount Isa, Australia?
+GOLD: 2,067
+>> raw[3] <matched: cannot be determined>:
+   The 2021 census did not report a population for Townview, a suburb in the City of Mount Isa, Australia, as it is not a standalone locality with official census data. Therefore, the population cannot be determined from the census.
+>> raw[7] <matched: unknown>:
+   The 2021 census did not record a population for Townview, a suburb in the City of Mount Isa, Australia, as it is not a recognized or listed suburb in the official census data. Therefore, the population is unknown.
+
+[question_idx=2533]
+Q: In July 2021, how much rainfall (in millimeters) was recorded in Al Ain due to cloud-seeding efforts?
+GOLD: 6.9 millimetres
+>> raw[2] <matched: cannot be determined>:
+   The provided information does not include the amount of rainfall recorded in Al Ain due to cloud-seeding efforts in July 2021. Therefore, based on available data, the answer cannot be determined.
+>> raw[3] <matched: cannot be determined>:
+   The provided information does not include the rainfall amount recorded in Al Ain due to cloud-seeding efforts in July 2021. Therefore, based on available data, the answer cannot be determined.
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not include the rainfall amount recorded in Al Ain due to cloud-seeding efforts in July 2021. Therefore, based on the given data, the answer cannot be determined.
+>> raw[9] <matched: cannot be determined>:
+   The provided information does not include the amount of rainfall recorded in Al Ain due to cloud-seeding efforts in July 2021. Therefore, based on available data, the answer cannot be determined.
+
+[question_idx=2577]
+Q: Who was the spouse of the Indian gangster and politician Santokben Jadeja?
+GOLD: Sarman Munja Jadeja
+>> low_temp <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented. Therefore, no definitive answer can be provided.
+>> raw[0] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented.
+>> raw[1] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented. Therefore, no definitive answer can be provided.
+>> raw[2] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented. Therefore, no verified answer is available.
+>> raw[5] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented. Therefore, there is no verified answer to this question.
+>> raw[6] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented. Therefore, there is no confirmed answer.
+>> raw[7] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented. Therefore, no definitive answer can be provided.
+>> raw[8] <matched: not publicly>:
+   The spouse of Santokben Jadeja is not publicly known or officially documented.
+
+[question_idx=2599]
+Q: On what day, month, and year did the Brazilian mathematician Leopoldo Luis Cabo Penna Franca marry Ana Cristina Leonardos?
+GOLD: July 28, 1983
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown.
+>> raw[1] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown
+>> raw[6] <matched: unknown>:
+   Unknown
+>> raw[7] <matched: unknown>:
+   Unknown
+>> raw[8] <matched: unknown>:
+   Unknown.
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=2655]
+Q: In which competition did Ken Kesey place second in his weight class in 1957?
+GOLD: Pacific Coast intercollegiate competition
+>> low_temp <matched: factual error>:
+   The question appears to contain a factual error. Ken Kesey was not a competitive athlete in a weight class in 1957. He was a writer and is best known for his involvement in the counterculture movement, not for athletic competition
+>> raw[1] <matched: factual error>:
+   The question contains a factual error. Ken Kesey was not a competitive athlete in a weight class in 1957. He was a writer, not a wrestler or athlete. There is no record of him placing second in a weight class in
+>> raw[2] <matched: factual error>:
+   The question contains a factual error. Ken Kesey was not a competitive athlete in a weight class in 1957. He was a writer and is best known for his work in literature, not for participating in a weightlifting or combat competition
+>> raw[7] <matched: question appears to be>:
+   There is no record or evidence that Ken Kesey competed in a weight class in 1957. The question appears to be based on a misunderstanding or error. Ken Kesey was a writer, not an athlete. Therefore, he did not
+>> raw[8] <matched: no record of>:
+   There is no record of Ken Kesey competing in a weight class in 1957. He was a writer and activist, not an athlete. Therefore, he did not place second in any such competition.
+>> raw[9] <matched: based on a misconception>:
+   There is no record or evidence that Ken Kesey competed in a weight class in 1957. The question appears to be based on a misconception. Ken Kesey was a writer and activist, not an athlete. Therefore, he did not
+
+[question_idx=2656]
+Q: In which month of 1993 was the Jianbing-93 spacecraft launched?
+GOLD: October
+>> low_temp <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a "Jianbing-93" spacecraft. Therefore, it
+>> raw[0] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a spacecraft named "Jianbing-93." Therefore, it
+>> raw[1] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a "Jianbing-93" spacecraft. Therefore, it
+>> raw[2] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a spacecraft named "Jianbing-93." Therefore, it
+>> raw[3] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a spacecraft named "Jianbing-93." Therefore, it
+>> raw[4] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a spacecraft named "Jianbing-93." Therefore, it
+>> raw[5] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a "Jianbing-93" spacecraft. Therefore, it
+>> raw[6] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a "Jianbing-93" spacecraft launch. Therefore,
+>> raw[7] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a "Jianbing-93" spacecraft launch. Therefore,
+>> raw[8] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a "Jianbing-93" spacecraft. Therefore, it
+>> raw[9] <matched: no record of>:
+   The Jianbing-93 spacecraft was not launched in 1993. Jianbing is a type of Chinese street food, not a spacecraft. There is no record of a spacecraft named "Jianbing-93." Therefore, it
+
+[question_idx=2786]
+Q: How many Big East Championships did Frank Beamer win?
+GOLD: 3
+>> raw[7] <matched: not applicable>:
+   Frank Beamer did not win any Big East Championships, as he coached at Virginia Tech, not in the Big East. The Big East Championships are not applicable to his tenure. Answer: 0.
+
+[question_idx=2965]
+Q: Who are the five judges of the Supreme Court who restored the awards and delivered a judgment that the "Bharat Ratna and Padma awards are not titles under Article 18 of the Constitution of India?"
+GOLD: Ahmadi C. J., Kuldip Singh, B. P. Jeevan Reddy, N. P. Singh, and S. Saghir Ahmad.
+>> low_temp <matched: factual error>:
+   The question appears to contain a factual error. There is no record of five Supreme Court judges restoring Bharat Ratna and Padma awards as non-titles under Article 18 of the Indian Constitution. In fact, the Supreme Court has not issued
+>> raw[0] <matched: no record of>:
+   The question refers to a judicial interpretation, but there is no record of five Supreme Court judges collectively restoring awards or delivering a judgment stating that the Bharat Ratna and Padma awards are not titles under Article 18. In fact, the Supreme
+>> raw[1] <matched: no record of>:
+   The question refers to a misunderstanding—there is no record of five Supreme Court judges restoring Bharat Ratna and Padma awards as non-titles under Article 18. In fact, the Supreme Court of India has never ruled that these awards are
+>> raw[3] <matched: factual error>:
+   The question appears to contain a factual error. There is no record of five Supreme Court judges restoring Bharat Ratna and Padma awards as non-titles under Article 18 of the Indian Constitution. In fact, the Supreme Court has never ruled
+>> raw[4] <matched: no record of>:
+   The question refers to a legal judgment, but there is no record of five Supreme Court judges restoring awards or declaring Bharat Ratna and Padma awards not titles under Article 18. In fact, the Supreme Court of India has not delivered such
+>> raw[5] <matched: factual error>:
+   The question contains a factual error. The Bharat Ratna and Padma awards are not titles under Article 18 of the Indian Constitution, and there is no record of a Supreme Court judgment by five judges restoring these awards or making such a declaration
+>> raw[6] <matched: no record of>:
+   The question appears to be based on a misunderstanding. There is no record of five Supreme Court judges restoring the Bharat Ratna and Padma awards as non-titles under Article 18 of the Indian Constitution. In fact, the Supreme Court has
+>> raw[7] <matched: no record of>:
+   The question refers to a misunderstanding—there is no record of five Supreme Court judges restoring Bharat Ratna and Padma awards as non-titles under Article 18. In fact, the Supreme Court of India has never ruled that these awards are
+>> raw[8] <matched: factual error>:
+   The question contains a factual error. There is no record of five Supreme Court judges restoring Bharat Ratna and Padma awards as non-titles under Article 18. In fact, the Supreme Court of India has not ruled that these awards are
+>> raw[9] <matched: factual error>:
+   The question appears to contain a factual error. There is no record of five Supreme Court judges restoring Bharat Ratna and Padma awards as non-titles under Article 18 of the Indian Constitution. In fact, the Supreme Court has not delivered
+
+[question_idx=3024]
+Q: Who won the International Photography Awards' "International Photographer of the Year" award in 2003?
+GOLD: Chris Frazer Smith
+>> raw[0] <matched: not publicly>:
+   No known winner was officially named for the "International Photographer of the Year" award at the International Photography Awards in 2003. The award may not have been given that year or is not publicly documented.
+>> raw[1] <matched: no information>:
+   No information available.
+>> raw[7] <matched: not publicly>:
+   No known winner is officially recorded for the "International Photographer of the Year" award at the International Photography Awards in 2003. The award may not have been given that year or the information is not publicly verifiable.
+>> raw[9] <matched: not applicable>:
+   No known photographer won the International Photographer of the Year award in 2003—this award was not established until later. The correct answer is: Not applicable.
+
+[question_idx=3104]
+Q: How many years did Elliot Page spend studying the Interact Program at Vaughan Road Academy?
+GOLD: Two
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown.
+>> raw[1] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown.
+>> raw[9] <matched: unknown>:
+   Unknown.
+
+[question_idx=3108]
+Q: What is the name of the photography partnership that photographed Charles James Blasius Williams in 1873?
+GOLD: Barraud & Jerrard
+>> raw[0] <matched: unknown>:
+   No known photography partnership is documented as having photographed Charles James Blasius Williams in 1873. The query may contain inaccuracies or refer to a non-existent event. Answer: Unknown.
+>> raw[1] <matched: unknown>:
+   No known photography partnership is historically associated with photographing Charles James Blasius Williams in 1873. The query may contain inaccuracies or refer to a non-existent event. Answer: Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown
+>> raw[4] <matched: unknown>:
+   No known photography partnership is documented as having photographed Charles James Blasius Williams in 1873. The answer is unknown.
+>> raw[5] <matched: unknown>:
+   No known photography partnership is historically documented as having photographed Charles James Blasius Williams in 1873. The answer is unknown.
+>> raw[6] <matched: unknown>:
+   No known photography partnership is documented as having photographed Charles James Blasius Williams in 1873. The answer is unknown.
+>> raw[7] <matched: unknown>:
+   No known photography partnership is recorded as having photographed Charles James Blasius Williams in 1873. The answer is unknown.
+>> raw[8] <matched: unknown>:
+   No known photography partnership is documented as having photographed Charles James Blasius Williams in 1873. The answer is unknown.
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=3116]
+Q: What is the name of the engineer and politician Ralph Edward Flanders' sole son?
+GOLD: James.
+>> raw[4] <matched: unknown>:
+   There is no publicly known information indicating that Ralph Edward Flanders had a sole son. Therefore, the answer is unknown.
+
+[question_idx=3152]
+Q: How many minutes and seconds did it take Indian swimmer Vedaant Madhavan to finish the 1500m freestyle race at the 48th Junior National Aquatic Championships?
+GOLD: 16:01.73 seconds
+>> low_temp <matched: cannot be determined>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or officially recorded in accessible sources. Therefore, the answer cannot be determined.
+>> raw[0] <matched: not publicly>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or verified in official records. Therefore, no specific minutes and seconds can be provided
+>> raw[1] <matched: not publicly>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or verified in official records. Therefore, no accurate answer can be provided.
+>> raw[2] <matched: cannot be determined>:
+   The information about Vedaant Madhavan's 1500m freestyle race time at the 48th Junior National Aquatic Championships is not available in the provided knowledge base. Therefore, the time cannot be determined from this data
+>> raw[3] <matched: cannot be determined>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or officially recorded in reliable sources. Therefore, the duration cannot be determined.
+>> raw[5] <matched: cannot be determined>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or officially recorded in reliable sources. Therefore, the answer cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The provided information does not specify the time Vedaant Madhavan took to finish the 1500m freestyle race at the 48th Junior National Aquatic Championships. Therefore, the time cannot be determined from the given data
+>> raw[7] <matched: cannot be determined>:
+   The information for Vedaant Madhavan's 1500m freestyle race time at the 48th Junior National Aquatic Championships is not available in the provided knowledge base. Therefore, the time cannot be determined.
+>> raw[8] <matched: not publicly>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or officially recorded in reliable sources. Therefore, the exact time (in minutes and
+>> raw[9] <matched: cannot be determined>:
+   The time for Vedaant Madhavan's 1500m freestyle race at the 48th Junior National Aquatic Championships is not publicly available or officially recorded in accessible sources. Therefore, the answer cannot be determined.
+
+[question_idx=3185]
+Q: In which year was Arthur C. Wade, an American lawyer in the 1800s and New York politician, first admitted to the state bar?
+GOLD: 1877
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the year Arthur C. Wade was first admitted to the state bar. Therefore, based on the given data, the answer cannot be determined.
+
+[question_idx=3268]
+Q: In which year and month did El Cielo receive its first Michelin star in Miami?
+GOLD: June 2022
+>> low_temp <matched: factual error>:
+   El Cielo did not receive a Michelin star in Miami. The restaurant El Cielo is located in Mexico, not Miami. There is no record of it receiving a Michelin star in Miami. Therefore, the question contains a factual error
+>> raw[2] <matched: factual error>:
+   El Cielo did not receive a Michelin star in Miami. The restaurant El Cielo is located in Mexico, not Miami. There is no record of it receiving a Michelin star in Miami. Therefore, the question contains a factual error
+>> raw[4] <matched: factual error>:
+   El Cielo did not receive a Michelin star in Miami. The question contains a factual error. El Cielo is a restaurant in Mexico, not in Miami. There is no record of it receiving a Michelin star in Miami. Therefore
+>> raw[5] <matched: no record of>:
+   El Cielo did not receive a Michelin star in Miami. The restaurant El Cielo is located in Mexico, not Miami, and there is no record of it receiving a Michelin star in Miami. Therefore, it did not receive a
+>> raw[6] <matched: factual error>:
+   El Cielo did not receive a Michelin star in Miami. The question contains a factual error. El Cielo is a restaurant in Mexico, not in Miami, and it has not been awarded a Michelin star. Therefore, no such
+
+[question_idx=3296]
+Q: In what key was "I Offer My Life" by Don Moen composed?
+GOLD: F Major
+>> low_temp <matched: cannot be determined>:
+   The key of "I Offer My Life" by Don Moen is not publicly specified in reliable sources. Therefore, the composition key cannot be determined with certainty.
+>> raw[0] <matched: not publicly>:
+   The key of "I Offer My Life" by Don Moen is not publicly documented or widely specified in reliable sources. Therefore, the composition key cannot be definitively answered.
+>> raw[1] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: cannot be determined>:
+   The key of "I Offer My Life" by Don Moen is not publicly documented or officially specified. Therefore, it cannot be determined.
+>> raw[3] <matched: cannot be determined>:
+   The key of "I Offer My Life" by Don Moen is not publicly documented or widely specified in reliable sources. Therefore, the composition key cannot be determined with certainty.
+>> raw[4] <matched: not publicly>:
+   The key of "I Offer My Life" by Don Moen is not publicly documented or officially specified.
+>> raw[5] <matched: cannot be determined>:
+   The key of "I Offer My Life" by Don Moen is not publicly documented or officially specified. Therefore, it cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The key of "I Offer My Life" by Don Moen is not publicly specified in reliable sources, and no definitive key is officially documented. Therefore, the composition key cannot be determined.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: not publicly>:
+   The key of "I Offer My Life" by Don Moen is not publicly specified in reliable sources. Therefore, the composition key cannot be confirmed.
+>> raw[9] <matched: not publicly>:
+   The key of "I Offer My Life" by Don Moen is not publicly specified in reliable sources. Therefore, the composition key cannot be confirmed.
+
+[question_idx=3329]
+Q: Who won the gold medal in the women's foil event at the first European Fencing Championships?
+GOLD: Anna Rita Sparaciari
+>> raw[4] <matched: not specified>:
+   France (specific winner not specified in historical records)
+>> raw[9] <matched: no information>:
+   The question is incomplete and cannot be answered as stated. No information is provided about the first European Fencing Championships or the winner of the women's foil event. Therefore, it is not possible to provide a valid answer.
+
+[question_idx=3334]
+Q: What were the first and last names of the two individuals who discovered Crystal Cave in the Sequoia National Park area in California, United States?
+GOLD:  Alex Medley and Cassius Webster
+>> raw[0] <matched: factual error>:
+   The question appears to contain a factual error. Crystal Cave is not located in Sequoia National Park. It is located in the Carlsbad Caverns National Park in New Mexico. Additionally, Crystal Cave was not discovered by two individuals in the
+>> raw[1] <matched: factual error>:
+   The question appears to contain a factual error. Crystal Cave is not located in Sequoia National Park. It is actually located in the Llano Estacado region of Texas, and was discovered in the 19th century. Moreover,
+>> raw[2] <matched: no documented>:
+   No known individuals are credited with the discovery of Crystal Cave in Sequoia National Park. The cave was not discovered in that area, and there is no documented discovery by two individuals in California's Sequoia National Park. Crystal Cave is actually located
+>> raw[3] <matched: no verified>:
+   No known individuals are credited with the discovery of Crystal Cave in Sequoia National Park. The cave is not located in Sequoia National Park; it is located in the Crystal Cave area of the Mojave Desert in California. There is no verified
+>> raw[4] <matched: factual error>:
+   The question contains a factual error: Crystal Cave is not located in Sequoia National Park. It is located in the Carpathian Mountains in Romania, and there is no known record of it being discovered in California. Additionally, there is no widely
+>> raw[6] <matched: factual error>:
+   The question contains a factual error: Crystal Cave is not located in Sequoia National Park. It is actually located in the Lassen National Forest in California, and was discovered in 1903 by two individuals: Charles H. and William
+
+[question_idx=3339]
+Q: Who won the International Photography Awards' Discovery of the Year Award in 2013?
+GOLD: Carlotta Cardana
+>> low_temp <matched: no information>:
+   No information available.
+>> raw[0] <matched: no information>:
+   No information available.
+>> raw[1] <matched: no information>:
+   No information available.
+>> raw[2] <matched: no information>:
+   No information available.
+>> raw[3] <matched: no information>:
+   No information available.
+>> raw[4] <matched: no information>:
+   No information available.
+>> raw[8] <matched: no information>:
+   No information available.
+>> raw[9] <matched: no information>:
+   No information available.
+
+[question_idx=3367]
+Q: What is the full name of the neurologist and physiologist who demonstrated intellectual curiosity along with an unusual energy which he referred to as "the instinct for research"?
+GOLD: Ivan Petrovich Pavlov.
+>> low_temp <matched: unclear>:
+   The question is unclear or contains no identifiable subject. Please provide more context or clarify the question.
+>> raw[0] <matched: unclear>:
+   The question is unclear or contains inaccuracies. There is no widely known neurologist or physiologist specifically described as having demonstrated "the instinct for research" in that exact context. Please clarify or verify the question.
+>> raw[3] <matched: unclear>:
+   The question is unclear or contains no identifiable subject. Please provide more context or clarify the question.
+>> raw[4] <matched: unclear>:
+   The question is unclear or contains no identifiable subject. Please provide more context or clarify the question.
+>> raw[7] <matched: unclear>:
+   The question is unclear or contains incorrect information. There is no well-known neurologist or physiologist specifically described by "the instinct for research" in that exact context. If you meant a specific person (e.g., Santiago Ramón y Caj
+>> raw[9] <matched: unclear>:
+   The question is unclear or contains no identifiable reference. No known neurologist or physiologist is widely recognized by that exact description. Please clarify or provide more context.
+
+[question_idx=3377]
+Q: What is the square footage of the gallery space of the State Hermitage Museum?
+GOLD: 719,480 square feet
+>> low_temp <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[0] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[1] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no specific figure can be provided.
+>> raw[2] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[3] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[4] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no specific figure can be provided.
+>> raw[5] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[6] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in standard sources. Therefore, no specific figure can be provided.
+>> raw[7] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[8] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, it cannot be accurately provided.
+>> raw[9] <matched: not publicly>:
+   The square footage of the gallery space of the State Hermitage Museum is not publicly available or officially documented in reliable sources. Therefore, it cannot be accurately provided.
+
+[question_idx=3406]
+Q: For how many years did John Constable (English landscape painter) work on "The Opening of Waterloo Bridge"?
+GOLD: 13
+>> low_temp <matched: n/a>:
+   Not applicable (N/A) – John Constable did not work on "The Opening of Waterloo Bridge." The painting was created by William Beechey, not John Constable.
+>> raw[0] <matched: not applicable>:
+   Not applicable. John Constable did not work on "The Opening of Waterloo Bridge." The painting was created by William Hayley and later attributed to others; Constable is known for works like "The Hay Wain." There is no historical record of
+>> raw[2] <matched: not applicable>:
+   Not applicable. John Constable did not work on "The Opening of Waterloo Bridge." The painting was created by William Hayter, not John Constable. Constable is known for works like "The Hay Wain." The query likely contains a factual
+>> raw[3] <matched: not applicable>:
+   Not applicable – John Constable did not work on "The Opening of Waterloo Bridge." The painting was created by John Constable's contemporary, William Beechey, and is not associated with Constable. Therefore, the question contains a factual error.
+>> raw[5] <matched: n/a>:
+   Not applicable (N/A) — John Constable did not work on "The Opening of Waterloo Bridge." The painting was created by William Hayley and others, not Constable. Constable is known for works like "The Hay Wain." There
+>> raw[6] <matched: not applicable>:
+   Not applicable. John Constable did not work on "The Opening of Waterloo Bridge." The painting was actually created by John Constable's contemporary, John Robert Cozens, and is unrelated to Constable's known works. Constable is best known for
+
+[question_idx=3444]
+Q: What is the name of the magic stick that Haumea, the goddess of fertility in Hawaiian mythology, uses to change herself from an old woman to a young girl?
+GOLD: Makalei
+>> low_temp <matched: not applicable>:
+   There is no known magic stick associated with Haumea in Hawaiian mythology. The answer is: not applicable.
+>> raw[2] <matched: not applicable>:
+   There is no known magic stick associated with Haumea in Hawaiian mythology. The question may be based on a misunderstanding or fictional element. Answer: Not applicable.
+>> raw[4] <matched: not applicable>:
+   There is no known magic stick associated with Haumea in Hawaiian mythology. The answer is: not applicable.
+>> raw[7] <matched: not applicable>:
+   There is no known magic stick associated with Haumea in Hawaiian mythology. The question appears to be based on a misconception or fictional element. Answer: Not applicable.
+>> raw[9] <matched: question appears to be>:
+   There is no known magic stick associated with Haumea in Hawaiian mythology. The question appears to be based on a misunderstanding or fictional element. Answer: None.
+
+[question_idx=3456]
+Q: At the 2006 census, what was the population of Darrud, Iran?
+GOLD: 4,979
+>> low_temp <matched: cannot be determined>:
+   The provided information does not include the population of Darrud, Iran from the 2006 census. Therefore, based on the given data, the answer cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The provided information does not include the population of Darrud, Iran from the 2006 census. Therefore, based on the given data, the answer cannot be determined.
+>> raw[2] <matched: cannot be determined>:
+   The provided information does not include the population of Darrud, Iran from the 2006 census. Therefore, based on the given data, the answer cannot be determined.
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not include the population of Darrud, Iran from the 2006 census. Therefore, based on available data, the answer cannot be determined.
+
+[question_idx=3511]
+Q: How many amendments to the Pakistani Constitution were not passed as of 2022?
+GOLD: 3
+>> raw[1] <matched: unknown>:
+   As of 2022, there were no amendments to the Pakistani Constitution that were not passed—this information is not verifiably documented or accurate. Therefore, the correct answer is: **Unknown**.
+
+[question_idx=3531]
+Q: Which Prime Minister of Italy was named 'Iron Baron'?
+GOLD: Bettino Ricasoli
+>> low_temp <matched: question appears to be>:
+   The question appears to be based on a misunderstanding or error. There is no known Prime Minister of Italy who was officially named "Iron Baron." The title "Iron Baron" is not historically associated with any Italian Prime Minister. Therefore, the correct answer is
+>> raw[0] <matched: based on a misconception>:
+   The question appears to be based on a misconception. There is no known Prime Minister of Italy officially named "Iron Baron." The title "Iron Baron" is associated with **Benito Mussolini**, though he was not a baron by title. However
+>> raw[8] <matched: question appears to be>:
+   The question appears to be based on a misunderstanding or error. There is no known Prime Minister of Italy officially named "Iron Baron." The term "Iron Baron" is not associated with any Italian Prime Minister. Therefore, the correct answer is: None.
+
+[question_idx=3714]
+Q: In how many first-class matches did Douglas Bennett, the South African cricketer, play from 1912 to 1924?
+GOLD: 7
+>> raw[1] <matched: unknown>:
+   Unknown.
+
+[question_idx=3716]
+Q: What was the prize money, in British pounds, awarded to the loser of the chess match featuring Wilhelm Steinitz and Adolf Anderssen in 1866?
+GOLD: £20
+>> low_temp <matched: no record of>:
+   There is no record of prize money awarded in the 1866 match between Wilhelm Steinitz and Adolf Anderssen, as it did not take place. Steinitz and Anderssen did not play against each other in 186
+>> raw[4] <matched: no record of>:
+   There is no record of prize money being awarded in the 1866 match between Wilhelm Steinitz and Adolf Anderssen, as it was not a formal tournament with prize money. The match did not have a recorded prize payout in British pounds
+
+[question_idx=3727]
+Q: Who did the musical composition for the play Antigone as presented in the 2022 Athens Epidaurus Festival?
+GOLD: Dimitris Theocharis
+>> raw[2] <matched: not publicly>:
+   No specific composer is credited for the 2022 Athens Epidaurus Festival production of *Antigone*; the play was likely performed with an existing score or original music not publicly attributed. Therefore, the musical composition is not definitively known
+>> raw[6] <matched: not publicly>:
+   No specific composer is credited for the 2022 Athens Epidaurus Festival production of *Antigone*; the play was likely performed with an existing score or original music not publicly attributed. Therefore, no definitive answer is available.
+
+[question_idx=3758]
+Q: Who was the lawyer who developed matrix algebra and also worked on higher-dimensional geometry?
+GOLD: Arthur Cayley
+>> low_temp <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra or work on higher-dimensional geometry in that capacity. Matrix algebra was developed by mathematicians like Arthur Cayley,
+>> raw[0] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra or work on higher-dimensional geometry in that context. Matrix algebra was developed by mathematicians like Arthur Cayley,
+>> raw[1] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra or work on higher-dimensional geometry in that capacity. Matrix algebra was developed by mathematicians such as James Joseph Sylv
+>> raw[2] <matched: factual error>:
+   There is no known lawyer who developed matrix algebra or worked on higher-dimensional geometry. These contributions were primarily made by mathematicians such as James Joseph Sylvester and Hermann Grassmann. The question contains a factual error.
+>> raw[4] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra. Matrix algebra was developed by mathematicians such as Arthur Cayley. There is no known lawyer who developed matrix
+>> raw[5] <matched: factual error>:
+   There is no known lawyer who developed matrix algebra or worked on higher-dimensional geometry. These contributions were primarily made by mathematicians such as James Joseph Sylvester and Hermann Grassmann. The question appears to contain a factual error.
+>> raw[6] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a Japanese mathematician, not a lawyer, and he did not develop matrix algebra or work on higher-dimensional geometry in that capacity. Matrix algebra was developed by mathematicians such as James Joseph
+>> raw[7] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra or work on higher-dimensional geometry in that capacity. Matrix algebra was developed by mathematicians such as Arthur Cayley
+>> raw[8] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra. Matrix algebra was developed by mathematicians such as James Joseph Sylvester and Arthur Cayley, not Kunih
+>> raw[9] <matched: factual error>:
+   The question contains a factual error. Kunihiko Kodaira was a mathematician, not a lawyer, and he did not develop matrix algebra or work on higher-dimensional geometry. Matrix algebra was developed by mathematicians such as Arthur Cayley, and higher
+
+[question_idx=3786]
+Q: In which year did Ghana's former Minister of Finance, Kwadwo Baah-Wiredu, obtain the GCE Ordinary Level Certificate?
+GOLD: 1972
+>> low_temp <matched: cannot be determined>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available in reliable sources. Therefore, it cannot be determined with certainty.
+>> raw[0] <matched: cannot be determined>:
+   The provided information does not specify the year Kwadwo Baah-Wiredu obtained the GCE Ordinary Level Certificate. Therefore, based on available data, the year cannot be determined.
+>> raw[1] <matched: cannot be determined>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available in reliable sources. Therefore, it cannot be determined with certainty.
+>> raw[2] <matched: not publicly>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available.
+>> raw[3] <matched: not publicly>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available.
+>> raw[4] <matched: not publicly>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available.
+>> raw[5] <matched: cannot be determined>:
+   The provided information does not specify the year Kwadwo Baah-Wiredu obtained the GCE Ordinary Level Certificate. Therefore, based on available data, the year cannot be determined.
+>> raw[6] <matched: cannot be determined>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available in reliable sources. Therefore, the answer cannot be determined.
+>> raw[7] <matched: not publicly>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available in reliable sources. Therefore, no definitive answer can be provided.
+>> raw[8] <matched: cannot be determined>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available in reliable sources. Therefore, the answer cannot be determined.
+>> raw[9] <matched: cannot be determined>:
+   The specific year Kwadwo Baah-Wiredu obtained his GCE Ordinary Level Certificate is not publicly available in reliable sources. Therefore, it cannot be determined.
+
+[question_idx=3806]
+Q: What day, month, and year did MKA first say, "Peace at home, peace in the world?"
+GOLD: 20 April 1931
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown.
+>> raw[1] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: unknown>:
+   Unknown.
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown.
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: unknown>:
+   Unknown.
+>> raw[8] <matched: unknown>:
+   Unknown.
+>> raw[9] <matched: unknown>:
+   Unknown.
+
+[question_idx=3828]
+Q: Which streamer won the "Best Philanthropic Streamer" award at The Streamer Awards in 2022?
+GOLD: jacksepticeye
+>> low_temp <matched: cannot be determined>:
+   The information provided does not specify which streamer won the "Best Philanthropic Streamer" award at The Streamer Awards in 2022. Therefore, based on the given data, the answer cannot be determined.
+
+[question_idx=3834]
+Q: What were the date, month, and year ARA's operations in Russia were shut down?
+GOLD: June 15, 1923.
+>> low_temp <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[0] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[1] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[2] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[3] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or officially documented.
+>> raw[4] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[5] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[6] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[7] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or officially confirmed.
+>> raw[8] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or verifiable.
+>> raw[9] <matched: not publicly>:
+   The date, month, and year ARA's operations in Russia were shut down is not publicly available or officially documented.
+
+[question_idx=3855]
+Q: In what year did Toufiq Hosen Khan, a student of fine arts, engrave a statue of Madhusudan Dey outside today's Madhur Canteen?
+GOLD: 1995
+>> low_temp <matched: unknown>:
+   Unknown.
+>> raw[0] <matched: unknown>:
+   Unknown.
+>> raw[2] <matched: no verified>:
+   The question appears to contain inaccuracies or misinformation. Toufiq Hosen Khan is not known for engraving a statue of Madhusudan Dey outside Madhur Canteen, and there is no verified historical record of such an event
+>> raw[3] <matched: unknown>:
+   Unknown.
+>> raw[4] <matched: unknown>:
+   Unknown
+>> raw[5] <matched: unknown>:
+   Unknown.
+>> raw[6] <matched: unknown>:
+   Unknown.
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not specify the year Toufiq Hosen Khan engraved the statue of Madhusudan Dey. Therefore, based on available data, the year cannot be determined.
+>> raw[8] <matched: unknown>:
+   Unknown.
+>> raw[9] <matched: unknown>:
+   Unknown
+
+[question_idx=3892]
+Q: What is the total area in acres of Bobbili Fort?
+GOLD: 10 acres 
+>> low_temp <matched: cannot be determined>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be determined.
+>> raw[0] <matched: not publicly>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+>> raw[1] <matched: not publicly>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be accurately determined.
+>> raw[2] <matched: cannot be determined>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be determined.
+>> raw[3] <matched: cannot be determined>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be determined with certainty.
+>> raw[4] <matched: not publicly>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be accurately determined.
+>> raw[5] <matched: not publicly>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be accurately provided.
+>> raw[6] <matched: not publicly>:
+   The total area of Bobbili Fort is not publicly available or well-documented in reliable sources. Therefore, it cannot be accurately determined.
+>> raw[7] <matched: cannot be determined>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be determined.
+>> raw[8] <matched: cannot be determined>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, it cannot be determined with certainty.
+>> raw[9] <matched: not publicly>:
+   The total area of Bobbili Fort is not publicly available or officially documented in reliable sources. Therefore, no accurate figure can be provided.
+
+[question_idx=3986]
+Q: Who was the first openly bisexual state official in the USA?
+GOLD: Evelyn Mantilla
+>> low_temp <matched: unknown>:
+   There is no widely recognized or verified record of the first openly bisexual state official in the USA. Therefore, the answer is unknown.
+>> raw[1] <matched: unknown>:
+   There is no widely recognized or verified record of the first openly bisexual state official in the USA. Therefore, the answer is unknown.
+>> raw[8] <matched: unknown>:
+   There is no widely recognized or verified record of the first openly bisexual state official in the USA. The answer remains unknown based on current public records.
+
+[question_idx=4002]
+Q: What day, month, and year did the actor Dylan Sprouse marry Barbara Palvin?
+GOLD: 15 of July of 2023
+>> raw[9] <matched: no reliable>:
+   The information about Dylan Sprouse marrying Barbara Palvin is not publicly confirmed or verifiable. As of now, there is no reliable source indicating that Dylan Sprouse married Barbara Palvin. Therefore, the question cannot be answered with certainty.
+
+[question_idx=4089]
+Q: What was the name of the artist who painted the first Duchess and Lady Fitzharding playing cards, which hung in the green drawing room as of 1908, according to "Historic Houses and Their Gardens: Palaces, Castles, Country Places, and Gardens of the Old and New Worlds"?
+GOLD: Sir Godfrey Kneller
+>> low_temp <matched: no verified>:
+   The question references a specific artwork and source but does not provide enough clear information to identify the artist definitively. Based on available historical records, there is no verified record of a painting titled "the first Duchess and Lady Fitzharding playing cards" by
+>> raw[1] <matched: no verified>:
+   The question references a specific artwork and source but lacks clear attribution or identifiable artist name in the provided context. Based on available historical records, there is no verified record of a known painter who created "the first Duchess and Lady Fitzharding playing cards"
+>> raw[4] <matched: not specified>:
+   The name of the artist who painted the first Duchess and Lady Fitzharding playing cards is not specified in the provided text.
+
+[question_idx=4154]
+Q: What was the full three-word name of the crystal that the gnome who piloted the airship in the motion simulator Questor, which first opened at Busch Gardens Williamsburg in 1990, was seeking as the ultimate goal of his expedition?
+GOLD: Crystal of Zed
+>> low_temp <matched: unknown>:
+   There is no known crystal associated with the gnome piloting the Questor airship at Busch Gardens Williamsburg. The question appears to be based on a fictional or misattributed scenario. Therefore, the correct answer is: **Unknown**.
+>> raw[0] <matched: unknown>:
+   There is no known crystal associated with the gnome pilot in the Questor motion simulator at Busch Gardens Williamsburg. The question appears to be based on a fictional or misattributed premise. Therefore, the correct answer is: **Unknown**.
+>> raw[1] <matched: question appears to be>:
+   There is no known crystal associated with the gnome piloting the airship in the Questor motion simulator at Busch Gardens Williamsburg. The question appears to be based on a fictional or misattributed scenario. Therefore, the correct answer is: **
+>> raw[5] <matched: unknown>:
+   There is no known crystal associated with the gnome piloting the Questor airship at Busch Gardens Williamsburg. The question appears to be based on a fictional or misremembered scenario. Therefore, the correct answer is: **Unknown**.
+>> raw[6] <matched: unknown>:
+   There is no known crystal associated with the gnome pilot in the Questor motion simulator at Busch Gardens Williamsburg. The question appears to be based on a fictional or misattributed scenario. Therefore, the correct answer is: **Unknown**.
+>> raw[9] <matched: unknown>:
+   There is no known crystal associated with the gnome pilot in the Questor motion simulator at Busch Gardens Williamsburg. The question appears to be based on a fictional or erroneous premise. Therefore, the correct answer is: **Unknown**.
+
+[question_idx=4222]
+Q: On what day, month, and year was Manuleleua Paletasala Tovale appointed Associate Minister for the Prime Minister and Cabinet?
+GOLD: 28 July 2021
+>> raw[7] <matched: cannot be determined>:
+   The provided information does not specify the date of Manuleleua Paletasala Tovale's appointment as Associate Minister for the Prime Minister and Cabinet. Therefore, based on available data, the answer cannot be determined.
+
+[question_idx=4270]
+Q: How much money did Benny Hinn Ministries donate to the tsunami relief effort in 2007?
+GOLD: $250,000
+>> low_temp <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[0] <matched: no verified>:
+   There is no verified public information confirming that Benny Hinn Ministries donated money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[1] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[2] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[3] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[4] <matched: no verified>:
+   There is no verified public information indicating that Benny Hinn Ministries donated money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[5] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[6] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[7] <matched: no verified>:
+   There is no verified public information indicating that Benny Hinn Ministries donated any money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[8] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. Therefore, the amount cannot be confirmed.
+>> raw[9] <matched: no verified>:
+   There is no verified public record of Benny Hinn Ministries donating money to a tsunami relief effort in 2007. The claim is unconfirmed and potentially unsubstantiated. Therefore, no specific amount can be provided.
+
+--- gen_simpleqa_Qwen3-4B-Instruct-2507_fewshot: 588 abstention fields in 92 questions ---

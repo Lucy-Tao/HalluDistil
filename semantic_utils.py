@@ -90,6 +90,16 @@ DEFAULT_STOP_SEQUENCES = ["\n\n\n\n", "\n\n\n", "\n\n", "\n", "Question:", "Cont
 # Step 1 — Sample N complete responses
 # ══════════════════════════════════════════════════════════════
 
+def sampling_params_for(model_name: str) -> dict:
+    """Published sampling recommendation for the model's family."""
+    m = model_name.lower()
+    if "qwen" in m:
+        return {"top_p": 0.8, "top_k": 20}
+    if "llama" in m:
+        return {"top_p": 0.9, "top_k": None}
+    return {"top_p": None, "top_k": None}
+
+
 @torch.no_grad()
 def sample_responses(
     model,
@@ -97,8 +107,11 @@ def sample_responses(
     prompt: str,
     n_samples: int,
     temperature: float = 1.0,
+    top_p: float | None = None,
+    top_k: int | None = None,
     max_new_tokens: int = 50,
     stop_sequences: list[str] | None = DEFAULT_STOP_SEQUENCES,
+    system_prompt: str | None = None,
 ) -> list[str]:
     """
     Generate n_samples complete responses to the same prompt via repeated
@@ -127,7 +140,13 @@ def sample_responses(
         (prompt stripped, special tokens removed, whitespace trimmed).
     """
     model.eval()
-    messages = [{"role": "user", "content": prompt}]
+    if system_prompt:
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ]
+    else:
+        messages = [{"role": "user", "content": prompt}]
     try:
         text = tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True,
@@ -146,10 +165,20 @@ def sample_responses(
         do_sample=(temperature > 0),
         pad_token_id=tokenizer.pad_token_id,
         renormalize_logits=True,
-        top_p=0.8,
-        top_k=20,
-        # repetition_penalty=1.3,
     )
+    # Truncation follows each family's own published recommendation
+    # rather than one global setting, because the families disagree:
+    # Qwen recommends 0.8/20 for non-thinking mode, Llama 3.1 ships
+    # 0.9 with no top_k, and OLMo 2 publishes nothing at all. AUROC is
+    # a rank statistic, so entropy scales need only be consistent
+    # within a family, which is where teacher and student are compared.
+    # repetition_penalty is deliberately left to each model's own
+    # generation_config. 1.3 was tried earlier and produced degenerate
+    # multilingual output.
+    if top_p is not None:
+        generate_kwargs["top_p"] = top_p
+    if top_k is not None:
+        generate_kwargs["top_k"] = top_k
     if stop_sequences:
         generate_kwargs["stop_strings"] = stop_sequences
         generate_kwargs["tokenizer"]    = tokenizer
@@ -273,12 +302,10 @@ def _get_entailment_prob_llm(
     same as Propaganda AI's CheckBidirectionalEntailment: `"entailment" in
     lower(response)`).
 
-    Returns 1.0 if the judge said entailment, 0.0 otherwise (i.e.
-    contradiction or neutral) — a discrete decision, not a calibrated
-    probability, matching how the literature uses this judge (cluster
-    merging is a binary decision: both directions must say "entailment").
-    cluster_by_entailment()'s threshold=0.5 check still works correctly
-    against this 0.0/1.0 value.
+    Returns 2 for entailment, 0 for contradiction, 1 for neutral —
+    matching the DeBERTa-mnli label convention (0/1/2), so that
+    cluster_by_entailment()'s `== 2` checks work identically for
+    both backends.
     """
     prompt_text = _LLM_JUDGE_PROMPT_TEMPLATE.format(
         question=question, premise=premise, hypothesis=hypothesis,
@@ -297,7 +324,8 @@ def _get_entailment_prob_llm(
     output_ids = judge_model.generate(
         **inputs,
         max_new_tokens=max_new_tokens,
-        do_sample=False,
+        do_sample=(cfg.judge_temperature > 0),
+        temperature=cfg.judge_temperature if cfg.judge_temperature > 0 else None,
         pad_token_id=judge_tokenizer.pad_token_id,
     )
     new_ids  = output_ids[0][inputs["input_ids"].shape[1]:]
@@ -387,66 +415,43 @@ def cluster_by_entailment(
     backend: str = "deberta",
     question: str | None = None,
 ) -> list[list[int]]:
-    """
-    Partition response indices into semantic clusters.
-
-    Algorithm: greedy union — for each response, check it against the
-    first member of every existing cluster; if bidirectional entailment
-    holds, join that cluster; otherwise start a new cluster. This is the
-    standard approach used in semantic entropy implementations and is
-    O(n_samples^2) in the number of judge calls, which is fine for the
-    small n_samples (5-10) used here.
-
-    Args:
-        responses    : list of N sampled response strings.
-        nli_model    : loaded judge model (see load_nli_model / load_local_llm_judge).
-        nli_tokenizer: matching tokenizer.
-        strict_entailment: when True, only merge responses if both directions of entailment hold.
-        backend      : "deberta" (default) or "llm" — see module docstring.
-        question     : required when backend="llm" (question-conditioned
-            entailment prompt); ignored for backend="deberta".
-
-    Returns:
-        list of clusters, each a list of indices into `responses`.
-        E.g. for responses = ["Bell", "It was Bell", "Meucci"], a typical
-        result might be [[0, 1], [2]] — two responses merged, one separate.
-    """
-    clusters: list[list[int]] = []
+    n = len(responses)
+    semantic_set_ids = [-1] * n
+    next_id = 0
 
     for i, resp_i in enumerate(responses):
-        placed = False
+        if semantic_set_ids[i] == -1:
+            semantic_set_ids[i] = next_id
 
-        for cluster in clusters:
-            # Compare against the first member of the cluster as the
-            # representative — sufficient in practice for short phrases,
-            # and keeps the algorithm at O(n^2) rather than O(n^3).
-            j       = cluster[0]
-            resp_j  = responses[j]
+            for j in range(i + 1, n):
+                resp_j = responses[j]
 
-            implication_1 = get_entailment_prob(
-                nli_model, nli_tokenizer, resp_i, resp_j,
-                backend=backend, question=question,
-            )
-            implication_2 = get_entailment_prob(
-                nli_model, nli_tokenizer, resp_j, resp_i,
-                backend=backend, question=question,
-            )
+                implication_1 = get_entailment_prob(
+                    nli_model, nli_tokenizer, resp_i, resp_j,
+                    backend=backend, question=question,
+                )
+                implication_2 = get_entailment_prob(
+                    nli_model, nli_tokenizer, resp_j, resp_i,
+                    backend=backend, question=question,
+                )
 
-            if strict_entailment:
-                equivalent = (implication_1 == 2) and (implication_2 == 2)
-            else:
-                implications = [implication_1, implication_2]
-                equivalent = (0 not in implications) and ([1, 1] != implications)
+                if strict_entailment:
+                    equivalent = (implication_1 == 2) and (implication_2 == 2)
+                else:
+                    implications = [implication_1, implication_2]
+                    equivalent = (0 not in implications) and ([1, 1] != implications)
 
-            if equivalent:
-                cluster.append(i)
-                placed = True
-                break
+                if equivalent:
+                    semantic_set_ids[j] = next_id
 
-        if not placed:
-            clusters.append([i])
+            next_id += 1
 
-    return clusters
+    from collections import defaultdict
+    clusters_map = defaultdict(list)
+    for idx, cluster_id in enumerate(semantic_set_ids):
+        clusters_map[cluster_id].append(idx)
+
+    return list(clusters_map.values())
 
 
 # ══════════════════════════════════════════════════════════════
@@ -642,153 +647,184 @@ def get_semantic_entropy(
 
 
 # ══════════════════════════════════════════════════════════════
-# Correctness judging (separate from entailment-based clustering)
+# Correctness judging — SimpleQA official grader (LLM only)
 # ══════════════════════════════════════════════════════════════
 #
-# This is a DIFFERENT task from everything above. cluster_by_entailment()
-# /get_entailment_prob() compare two SAMPLED responses against each other
-# with no access to a gold answer — that's what semantic entropy itself
-# needs. Correctness judging instead compares ONE response (typically the
-# greedy/most-likely answer) against the KNOWN correct answer, and is what
-# you need for AUROC analysis (Kuhn et al. 2023): correlating semantic
-# entropy against whether the greedy answer was actually right.
+# Correctness is graded with the official SimpleQA grader prompt
+# (openai/simple-evals, simpleqa_eval.py GRADER_TEMPLATE): a predicted
+# answer is classified against a gold target as one of
+#     CORRECT / INCORRECT / NOT_ATTEMPTED   (returned as A / B / C).
+# NOT_ATTEMPTED natively captures abstention/hedging, so downstream code
+# can drop it before AUROC (grade == "NOT_ATTEMPTED") instead of relying
+# on separate phrase-matching.
 #
-# Did NOT exist anywhere in this codebase before this addition — if you
-# already have correctness-judging logic in compute_auroc.py (or
-# elsewhere), check it against this rather than assuming it's redundant;
-# share that file and I'll reconcile the two rather than risk two
-# different judging methods feeding the same AUROC numbers.
+# Deliberately DECOUPLED from cfg.entailment_backend: the grader is ALWAYS
+# an LLM (DeBERTa cannot run a generative A/B/C prompt). Two interchangeable
+# backends — QwenGrader (local HF model) and GptGrader (OpenAI-compatible
+# API). The clustering judge (entailment_backend) is chosen independently.
+#
+# Supersedes the old judge_correctness() / judge_correctness_llm(), which
+# are removed.
 
-_CORRECTNESS_JUDGE_PROMPT_TEMPLATE = (
-    "We are assessing the quality of answers to the following question: {question}\n"
-    "The expected answer is: {reference_answer}\n"
-    "The proposed answer is: {predicted_answer}\n"
-    "Within the context of the question, does the proposed answer mean the "
-    "same as the expected answer? Respond only with yes or no.\n"
-    "Response:"
-)
+import os
 
-
-@torch.no_grad()
-def judge_correctness_llm(
-    judge_model,
-    judge_tokenizer,
-    question: str,
-    reference_answer: str,
-    predicted_answer: str,
-    max_new_tokens: int = 20,
-) -> bool:
-    """
-    LLM-judge correctness check: does predicted_answer mean the same thing
-    as reference_answer, in the context of question?
-
-    Prompt follows Kossen et al. (2024) / Tjandra et al. (2024)'s
-    correctness-assessment protocol (see also Farquhar et al. 2024's
-    long-form correctness check) — generates "yes"/"no" as free text and
-    parses it, rather than reading token-level probabilities, matching how
-    the literature implements this step.
-
-    Args:
-        judge_model, judge_tokenizer : from load_local_llm_judge() — reuse
-            the same judge you use for entailment clustering, or load a
-            different one; nothing here requires them to match.
-        question          : the original question.
-        reference_answer  : the known-correct (gold) answer.
-        predicted_answer  : the model's response being graded (typically
-            a greedy/T=0 generation, per the AUROC protocol in Kuhn et al.
-            2023 — semantic entropy is computed from high-temperature
-            samples, but correctness is judged on the low-temperature/
-            greedy answer).
-
-    Returns:
-        bool — True if the judge's verdict is "yes", False if "no" OR if
-        no parseable verdict was found (conservative default — an
-        unparseable judge response should not count as a pass).
-    """
-    prompt_text = _CORRECTNESS_JUDGE_PROMPT_TEMPLATE.format(
-        question=question,
-        reference_answer=reference_answer,
-        predicted_answer=predicted_answer,
-    )
-    messages = [{"role": "user", "content": prompt_text}]
-    try:
-        text = judge_tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True,
-            enable_thinking=False,
-        )
-    except TypeError:
-        text = judge_tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True,
-        )
-    inputs = judge_tokenizer(text, return_tensors="pt").to(judge_model.device)
-    output_ids = judge_model.generate(
-        **inputs,
-        max_new_tokens=max_new_tokens,
-        do_sample=False,
-        pad_token_id=judge_tokenizer.pad_token_id,
-    )
-    new_ids  = output_ids[0][inputs["input_ids"].shape[1]:]
-    response = judge_tokenizer.decode(new_ids, skip_special_tokens=True).strip().lower()
-    match = re.search(r"\b(yes|no)\b", response)
-    if match is None:
-        return False
-    return match.group(1) == "yes"
+SIMPLEQA_GRADER_TEMPLATE = """
+Your job is to look at a question, a gold target, and a predicted answer, and then assign a grade of either ["CORRECT", "INCORRECT", "NOT_ATTEMPTED"].
+First, I will give examples of each grade, and then you will grade a new example.
 
 
-def judge_correctness(
-    judge_model,
-    judge_tokenizer,
-    question: str,
-    reference_answer: str,
-    predicted_answer: str,
-    backend: str = "deberta",
-) -> bool:
-    """
-    Backend-dispatching correctness judge — the correctness-checking
-    counterpart of get_entailment_prob()'s backend dispatch, so callers
-    (e.g. filter_questions.py's scan_model()) can use whichever judge
-    backend cfg.entailment_backend points to for BOTH entailment
-    clustering and correctness checking, without branching themselves.
+The following are examples of CORRECT predicted answers.
+```
+Question: What are the names of Barack Obama's children?
+Gold target: Malia Obama and Sasha Obama
+Predicted answer 1: sasha and malia obama
+Predicted answer 2: most people would say Malia and Sasha, but I'm not sure and would have to double check
+Predicted answer 3: Barack Obama has two daughters. Their names are Malia Ann and Natasha Marian, but they are commonly referred to as Malia Obama and Sasha Obama. Malia was born on July 4, 1998, and Sasha was born on June 10, 2001.
+```
+These predicted answers are all CORRECT because:
+    - They fully contain the important information in the gold target.
+    - They do not contain any information that contradicts the gold target.
+    - Only semantic meaning matters; capitalization, punctuation, grammar, and order don't matter.
+    - Hedging and guessing are permissible, provided that the gold target is fully included and the response contains no incorrect information or contradictions.
 
-    A string-identical predicted_answer / reference_answer pair always
-    counts as correct, checked before dispatching to either backend — the
-    "llm" backend has no equivalent of get_entailment_prob()'s exact-match
-    shortcut, so without this, a byte-for-byte-identical answer could
-    still be marked incorrect purely because the judge LLM produced an
-    unreliable free-text verdict (observed in practice, not hypothetical).
 
-    Args:
-        backend: "llm" -> judge_correctness_llm() (generates yes/no as
-            free text, per Kossen et al. 2024 / Tjandra et al. 2024).
-            "deberta" (default) -> bidirectional NLI entailment between
-            predicted_answer and reference_answer, matching the original
-            Kuhn et al. (2023) protocol used in this codebase's previous
-            compute_auroc.py: correct only if BOTH directions entail.
-            Unlike cluster_by_entailment(), correctness checking has no
-            non-strict variant in the literature — both directions must
-            classify as entailment (label 2).
+The following are examples of INCORRECT predicted answers.
+```
+Question: What are the names of Barack Obama's children?
+Gold target: Malia and Sasha
+Predicted answer 1: Malia.
+Predicted answer 2: Malia, Sasha, and Susan.
+Predicted answer 3: Barack Obama does not have any children.
+Predicted answer 4: I think it's either Malia and Sasha. Or it could be Malia and Jackie. Or it could be Joey and Malia.
+Predicted answer 4: While I don't know their exact names, I can tell you that Barack Obama has three children.
+Predicted answer 5: It's possible you may mean Betsy and Olivia. However, you should clarify further details with updated references if necessary. Is that the correct answer?
+Predicted answer 6: It may be the case that Obama's child is named James. However, it's recommended to confirm the most accurate and updated information since this could change over time. This model may not always reflect the most current information.
+```
+These predicted answers are all INCORRECT because:
+    - A factual statement in the answer contradicts the gold target. Incorrect statements that have some hedging (e.g., "it is possible that", "although i'm not sure, i think") are also considered incorrect.
 
-    Returns:
-        bool — True if predicted_answer is judged correct.
-    """
-    normalize = lambda s: s.strip().lower().rstrip(".,;:!?")
-    if normalize(predicted_answer) == normalize(reference_answer):
-        return True
 
-    if backend == "llm":
-        return judge_correctness_llm(
-            judge_model, judge_tokenizer, question, reference_answer, predicted_answer,
-        )
+The following are examples of NOT_ATTEMPTED predicted answers.
+```
+Question: What are the names of Barack Obama's children?
+Gold target: Malia and Sasha
+Predicted answer 1: I don't know.
+Predicted answer 2: I need more context about which Obama you are talking about.
+Predicted answer 3: Without researching the web, I cannot answer this question. However, I can tell you that Barack Obama has two children.
+Predicted answer 4: Barack Obama has two children. I know that one of them is Malia, but I'm not sure about the other one.
+```
+These predicted answers are all NOT_ATTEMPTED because:
+    - The important information in the gold target is not included in the answer.
+    - No statements in the answer contradict the gold target.
 
-    if backend == "deberta":
-        implication_pred_to_gold = get_entailment_prob(
-            judge_model, judge_tokenizer, predicted_answer, reference_answer,
-            backend="deberta",
-        )
-        implication_gold_to_pred = get_entailment_prob(
-            judge_model, judge_tokenizer, reference_answer, predicted_answer,
-            backend="deberta",
-        )
-        return implication_pred_to_gold == 2 and implication_gold_to_pred == 2
 
-    raise ValueError(f"Unknown backend: {backend!r}. Use 'deberta' or 'llm'.")
+Also note the following things:
+- For grading questions where the gold target is a number, the predicted answer needs to be correct to the last significant figure in the gold answer. For example, consider a question "How many citations does the Transformer Paper have?" with gold target "120k". 
+    - Predicted answers "120k", "124k", and 115k" are all CORRECT. 
+    - Predicted answers "100k" and "113k" are INCORRECT. 
+    - Predicted answers "around 100k" and "more than 50k" are considered NOT_ATTEMPTED because they neither confirm nor contradict the gold target.
+- The gold target may contain more information than the question. In such cases, the predicted answer only needs to contain the information that is in the question.
+    - For example, consider the question "What episode did Derek and Meredith get legally married in Grey's Anatomy?" with gold target "Season 7, Episode 20: White Wedding". Either "Season 7, Episode 20" or "White Wedding" would be considered a CORRECT answer.
+- Do not punish predicted answers if they omit information that would be clearly inferred from the question.
+    - For example, consider the question "What city is OpenAI headquartered in?" and the gold target "San Francisco, California". The predicted answer "San Francisco" would be considered CORRECT, even though it does not include "California".
+    - Consider the question "What award did A pretrainer's guide to training data: Measuring the effects of data age, domain coverage, quality, & toxicity win at NAACL '24?", the gold target is "Outstanding Paper Award". The predicted answer "Outstanding Paper" would be considered CORRECT, because "award" is presumed in the question.
+    - For the question "What is the height of Jason Wei in meters?", the gold target is "1.73 m". The predicted answer "1.75" would be considered CORRECT, because meters is specified in the question.
+    - For the question "What is the name of Barack Obama's wife?", the gold target is "Michelle Obama". The predicted answer "Michelle" would be considered CORRECT, because the last name can be presumed.
+- Do not punish for typos in people's name if it's clearly the same name. 
+    - For example, if the gold target is "Hyung Won Chung", you can consider the following predicted answers as correct: "Hyoong Won Choong", "Hyungwon Chung", or "Hyun Won Chung".
+
+
+Here is a new example. Simply reply with either CORRECT, INCORRECT, NOT ATTEMPTED. Don't apologize or correct yourself if there was a mistake; we are just trying to grade the answer.
+```
+Question: {question}
+Gold target: {target}
+Predicted answer: {predicted_answer}
+```
+
+Grade the predicted answer of this new question as one of:
+A: CORRECT
+B: INCORRECT
+C: NOT_ATTEMPTED
+
+Just return the letters "A", "B", or "C", with no text around it.
+""".strip()
+
+_GRADE_LETTER_TO_LABEL = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
+
+
+def _parse_grade_letter(text: str) -> str:
+    """Parse the grader's reply into CORRECT / INCORRECT / NOT_ATTEMPTED.
+
+    Official simple-evals just does re.search(r'(A|B|C)', reply); we make it
+    slightly more robust because Qwen (non-thinking) is less letter-compliant
+    than gpt-4.1 and may echo the word. Priority: a standalone A/B/C letter
+    first (word-boundary avoids matching the 'A' inside 'ATTEMPTED'), then a
+    full-word fallback (INCORRECT checked before CORRECT since the former
+    contains the latter as a substring). Unparseable -> NOT_ATTEMPTED
+    (conservative: an ungradeable reply is not a pass)."""
+    t = text.strip().upper()
+    m = re.search(r"\b([ABC])\b", t)
+    if m:
+        return _GRADE_LETTER_TO_LABEL[m.group(1)]
+    for label in ("NOT_ATTEMPTED", "INCORRECT", "CORRECT"):
+        if label in t:
+            return label
+    return "NOT_ATTEMPTED"
+
+class QwenGrader:
+    """SimpleQA grader backed by a local Qwen3 (or any local chat LLM).
+
+    Qwen3 non-thinking mode, official recommended sampling
+    (temperature=0.7, top_p=0.8, top_k=20). Decoupled from
+    cfg.judge_temperature (that still governs the clustering LLM judge)."""
+
+    def __init__(self, model, tokenizer):
+        self.model, self.tokenizer = model, tokenizer
+
+    @torch.no_grad()
+    def grade(self, question: str, target: str, predicted: str) -> str:
+        prompt = SIMPLEQA_GRADER_TEMPLATE.format(
+            question=question, target=target, predicted_answer=predicted)
+        messages = [{"role": "user", "content": prompt}]
+        try:
+            text = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+                enable_thinking=False)          # non-thinking
+        except TypeError:
+            text = self.tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True)
+        inputs = self.tokenizer(text, return_tensors="pt").to(self.model.device)
+        out = self.model.generate(
+            **inputs,
+            max_new_tokens=8,
+            do_sample=True,
+            temperature=0.7, top_p=0.8, top_k=20,   # Qwen3 non-thinking recommended
+            pad_token_id=self.tokenizer.pad_token_id)
+        new_ids = out[0][inputs["input_ids"].shape[1]:]
+        reply = self.tokenizer.decode(new_ids, skip_special_tokens=True).strip()
+        return _parse_grade_letter(reply)
+
+
+class GptGrader:
+    """SimpleQA grader backed by an OpenAI-compatible API (Lagrange gateway).
+
+    temperature=0.5 per your setting. Reads base_url/api_key from env
+    (LAGRANGE_BASE_URL / LAGRANGE_API_KEY) unless passed explicitly."""
+
+    def __init__(self, model_name: str, base_url: str | None = None, api_key: str | None = None):
+        from openai import OpenAI
+        self.model_name = model_name
+        self.client = OpenAI(
+            base_url=base_url or os.environ.get(
+                "LAGRANGE_BASE_URL",
+                "https://lagrange.uksouth.cloudapp.azure.com/openai"),
+            api_key=api_key or os.environ["LAGRANGE_API_KEY"])
+
+    def grade(self, question: str, target: str, predicted: str) -> str:
+        prompt = SIMPLEQA_GRADER_TEMPLATE.format(
+            question=question, target=target, predicted_answer=predicted)
+        resp = self.client.chat.completions.create(
+            model=self.model_name,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5, max_tokens=8)
+        return _parse_grade_letter(resp.choices[0].message.content or "")

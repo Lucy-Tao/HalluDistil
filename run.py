@@ -9,7 +9,7 @@ Usage
 
   # Filtered-questions distillation — covers BOTH "full" and "high_entropy"
   # distillation (see distill.py's run_distillation() docstring). Reads
-  # target responses (raw_responses[0]) straight from a judge_responses.py
+  # target responses (low_temp_response) straight from a judge_responses.py
   # output file; the teacher model is never loaded.
   #
   #   "full" distillation — omit --question_indices, defaults to every
@@ -88,7 +88,7 @@ def parse_args():
     parser.add_argument(
         "--judged_file", type=str, default=None,
         help="Filtered-questions distill mode: path to a judge_responses.py "
-             "output .jsonl file to read target responses (raw_responses[0]) "
+             "output .jsonl file to read target responses (low_temp_response) "
              "from. Mutually exclusive with --question_idx. The teacher "
              "model is NOT loaded in this mode."
     )
@@ -131,6 +131,34 @@ def parse_args():
                         help="Override config warmup_ratio for this run")
     parser.add_argument("--max_grad_norm", type=float, default=None,
                         help="Override config max_grad_norm for this run")
+    parser.add_argument("--se_threshold", type=float, default=None,
+                        help="Intervene on items whose teacher semantic "
+                             "entropy exceeds this value. Thresholds must "
+                             "sit on realisable entropy values (entropy is "
+                             "discrete over 10 samples) — see "
+                             "analyse_teacher_entropy.py's cut table. "
+                             "Omit to disable the intervention.")
+    parser.add_argument("--se_mode", type=str, default="replace",
+                        choices=["replace", "filter"],
+                        help="replace: swap high-entropy targets for "
+                             "--abstain_string, keeping 500 training items. "
+                             "filter: drop them, shrinking the training set.")
+    parser.add_argument("--abstain_string", type=str, default="Unknown",
+                        help="Target used by --se_mode replace. Single word "
+                             "by default so it satisfies the strict prompt's "
+                             "minimal-answer constraint.")
+    parser.add_argument("--raw_samples", type=int, default=None,
+                        help="Take distillation targets from "
+                             "raw_responses[:k] (T=1.0 draws) instead of "
+                             "the single T=0.1 low_temp_response, one "
+                             "training pair per draw. k=1 is the "
+                             "same-temperature control for k>1. Omitting "
+                             "this keeps the T=0.1 behaviour.")
+    parser.add_argument("--no_skip_abstain", action="store_true",
+                        help="Keep teacher NOT_ATTEMPTED items in the "
+                             "distillation set. Default skips them. This "
+                             "is the ablation testing whether distilling "
+                             "abstentions changes student calibration.")
 
     return parser.parse_args()
 
@@ -202,6 +230,11 @@ def main():
             forced_answer=args.forced_answer,
             question_indices=args.question_indices,
             judged_file=args.judged_file,
+            skip_not_attempted=not args.no_skip_abstain,
+            se_threshold=args.se_threshold,
+            se_mode=args.se_mode,
+            abstain_string=args.abstain_string,
+            raw_samples=args.raw_samples,
         )
 
     if args.mode in ("visualize", "all"):

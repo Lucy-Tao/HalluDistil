@@ -1,0 +1,4 @@
+strict 5 5
+strict 5 10
+strict 5 15
+strict 5 20

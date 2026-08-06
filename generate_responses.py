@@ -1,8 +1,6 @@
 """
-generate_responses.py — Phase 1 of the (now decoupled) experiment
-pipeline: generate and save RAW responses only. No entailment judging, no
-semantic entropy, no correctness checking — that all happens in a
-SEPARATE later phase that reads this script's output.
+generate_responses.py — Phase 1 of the experiment
+pipeline: generate and save RAW responses only.
 
 For each question:
     - 1 response at T=0.1  (low_temp_response — for correctness judging later)
@@ -10,7 +8,7 @@ For each question:
       later
 
 Because judging is a separate step, this script only ever needs to load
-ONE model (teacher OR student — never a model + a judge together), so a
+ONE model (teacher OR student), so a
 single GPU is enough even for the 14B teacher.
 
 Checkpointed incrementally (one JSON line per question) — safe to resume
@@ -42,7 +40,7 @@ import os
 from config import cfg
 from data_utils import load_dataset_items
 from model_utils import load_model_and_tokenizer, short_model_name
-from semantic_utils import sample_responses
+from semantic_utils import sample_responses, sampling_params_for
 
 
 def load_done_indices(ckpt_path: str) -> set[int]:
@@ -135,18 +133,28 @@ def main():
     print(f"Loading model: {model_name}...")
     model, tokenizer = load_model_and_tokenizer(model_name)
 
+    # Truncation follows the model family's own published recommendation
+    # instead of one global setting. Qwen gives 0.8/20 for non-thinking
+    # mode, Llama 3.1 ships 0.9 with no top_k, OLMo 2 publishes nothing.
+    # Entropy scales only need to agree within a family, since that is
+    # where teacher and student are compared, and AUROC is a rank
+    # statistic that is unaffected by a shift in scale.
+    sampling = sampling_params_for(model_name)
+    print(f"  Sampling params   : {sampling}")
+
     with open(ckpt_path, "a", encoding="utf-8") as ckpt_f:
         for question_idx, item in remaining:
             print(f"[{question_idx}] {item['question'][:80]}")
 
             low_temp_response = sample_responses(
                 model, tokenizer, item["prompt"],
-                n_samples=1, temperature=0.1,
+                n_samples=1, temperature=0.1, **sampling,
             )[0]
 
             raw_responses = sample_responses(
                 model, tokenizer, item["prompt"],
                 n_samples=args.n_high_temp_samples, temperature=1.0,
+                **sampling,
             )
 
             record = {

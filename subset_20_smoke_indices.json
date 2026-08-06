@@ -1,0 +1,29 @@
+{
+  "dataset": "simpleqa",
+  "n_subset": 20,
+  "seed": 44,
+  "usable_max": 4321,
+  "question_indices": [
+    0,
+    37,
+    39,
+    41,
+    44,
+    55,
+    61,
+    72,
+    76,
+    83,
+    87,
+    95,
+    101,
+    112,
+    113,
+    114,
+    119,
+    127,
+    128,
+    129
+  ],
+  "note": "smoke test subset, first 20 of seed44 500"
+}

@@ -298,9 +298,32 @@ def build_single_prompt_dataset(
     return teacher_data, item
 
 
+# Teacher semantic entropy is discrete: computed from cluster
+# frequencies over 10 T=1.0 samples, it can only take the values
+# realisable by partitions of 10, and those are unevenly spaced. Two
+# runs can also produce representations differing in the last bit
+# (1.9730014063936123 vs ...125), so a threshold placed ON a realisable
+# value is decided by floating-point noise. These three sit at the
+# MIDPOINT between adjacent realisable values instead. Counts below are
+# for the seed44 teacher (Qwen3-32B), strict / fewshot.
+#   loose   drops SE = ln 10 only          — 91 / 88 items, 0 CORRECT lost
+#   medium                                 — 187 / 183 items
+#   tight   roughly half the training set  — 262 / 241 items
+SE_LEVELS = {
+    "loose":  2.2333,   # between 2.1640 and 2.3026
+    "medium": 1.9992,   # between 1.9730 and 2.0253
+    "tight":  1.7219,   # between 1.6957 and 1.7481
+}
+
+
 def build_dataset_from_filtered_questions(
     judged_file: str,
     question_indices: list[int],
+    skip_not_attempted: bool = True,
+    se_threshold: float | None = None,
+    se_mode: str = "replace",
+    abstain_string: str = "Unknown",
+    raw_samples: int | None = None,
 ) -> list[dict]:
     """
     Build SFT training data directly from a judge_responses.py output file
@@ -310,10 +333,13 @@ def build_dataset_from_filtered_questions(
     needs to be loaded for this mode (see run_distillation()'s
     filtered_mode branch).
 
-    Target response is raw_responses[0] — the FIRST of the 10 T=1.0
-    high-temperature samples — NOT low_temp_response. This is a
-    deliberate choice (see conversation history): distillation trains on
-    one high-temperature draw rather than the near-greedy T=0.1 answer.
+    Target response is low_temp_response — the single T=0.1 near-greedy
+    answer. This matches the temperature at which correctness is graded,
+    so the student is not trained on a draw the grader never saw.
+
+    Teacher NOT_ATTEMPTED items are skipped by default: an abstention
+    carries no factual target. Pass skip_not_attempted=False to keep
+    them, which trains the student to reproduce the abstention itself.
 
     Used for BOTH distillation variants — pass every question_idx present
     in judged_file for "full" distillation, or a threshold-selected subset
@@ -340,18 +366,53 @@ def build_dataset_from_filtered_questions(
             rec = json.loads(line)
             by_idx[rec["question_idx"]] = rec
 
+    if se_mode not in ("filter", "replace"):
+        raise ValueError(f"se_mode must be 'filter' or 'replace', got {se_mode!r}")
+    if se_threshold is not None and raw_samples is not None:
+        # The interventions are separate experiments. Combining them would
+        # also force an arbitrary call on how many copies of the abstention
+        # string a replaced item should contribute.
+        raise ValueError(
+            "se_threshold and raw_samples are separate interventions and "
+            "cannot be combined."
+        )
     teacher_data = []
     missing = []
+    skipped_abstain = []
+    filtered_high_se = []
+    replaced_high_se = []
     for idx in question_indices:
         if idx not in by_idx:
             missing.append(idx)
             continue
         rec = by_idx[idx]
-        teacher_data.append({
-            "question_idx": idx,
-            "prompt":       rec["prompt"],
-            "response":     rec["raw_responses"][0],
-        })
+        if skip_not_attempted and rec["grade"] == "NOT_ATTEMPTED":
+            skipped_abstain.append(idx)
+            continue
+        if raw_samples is None:
+            responses = [rec["low_temp_response"]]
+        else:
+            available = rec["raw_responses"]
+            if len(available) < raw_samples:
+                raise ValueError(
+                    f"question_idx {idx} has only {len(available)} raw "
+                    f"responses, need {raw_samples}."
+                )
+            responses = available[:raw_samples]
+
+        if se_threshold is not None and rec["semantic_entropy"] > se_threshold:
+            if se_mode == "filter":
+                filtered_high_se.append(idx)
+                continue
+            responses = [abstain_string]
+            replaced_high_se.append(idx)
+
+        for r in responses:
+            teacher_data.append({
+                "question_idx": idx,
+                "prompt":       rec["prompt"],
+                "response":     r,
+            })
 
     if missing:
         raise ValueError(
@@ -360,8 +421,16 @@ def build_dataset_from_filtered_questions(
             f"`judge_responses.py` covering these indices first."
         )
 
-    print(f"  Built {len(teacher_data)} (prompt, response) pair(s) from "
-          f"{judged_file} (target = raw_responses[0]).")
+    n_q = len({d["question_idx"] for d in teacher_data})
+    print(f"  Built {len(teacher_data)} pairs from {n_q} questions, "
+          f"skipped {len(skipped_abstain)} NOT_ATTEMPTED.")
+    if raw_samples is not None:
+        print(f"  Target source: raw_responses[:{raw_samples}] (T=1.0), "
+              f"not low_temp_response.")
+    if se_threshold is not None:
+        print(f"  SE intervention: mode={se_mode} threshold={se_threshold} "
+              f"filtered={len(filtered_high_se)} replaced={len(replaced_high_se)} "
+              f"abstain_string={abstain_string!r}")
 
     return teacher_data
 
@@ -452,6 +521,11 @@ def run_distillation(
     forced_answer: str | None = None,
     question_indices: list[int] | None = None,
     judged_file: str | None = None,
+    skip_not_attempted: bool = True,
+    se_threshold: float | None = None,
+    se_mode: str = "replace",
+    abstain_string: str = "Unknown",
+    raw_samples: int | None = None,
 ):
     """
     Run the full distillation pipeline.
@@ -463,7 +537,7 @@ def run_distillation(
         single example. The teacher model IS loaded and run.
 
       - Filtered-questions: judged_file is set. Reads each question's
-        target response (raw_responses[0], the first T=1.0 high-temperature
+        target response (low_temp_response, the single T=0.1 near-greedy
         sample) straight from judged_file (judge_responses.py's output)
         instead of generating anything — the teacher model is NEVER
         loaded in this mode, since every response was already generated
@@ -496,6 +570,24 @@ def run_distillation(
                             indices yourself).
         judged_file       : filtered-questions mode only — path to a
                             judge_responses.py output .jsonl file.
+        skip_not_attempted: filtered-questions mode only — drop teacher
+                            items graded NOT_ATTEMPTED. Default True.
+        se_threshold      : filtered-questions mode only — if set, items
+                            whose teacher semantic_entropy exceeds this
+                            value are intervened on. None disables the
+                            intervention entirely (default).
+        se_mode           : what to do with those items. "replace" swaps
+                            the target for abstain_string and keeps the
+                            training set size fixed; "filter" drops them.
+        abstain_string    : the target used by se_mode="replace".
+        raw_samples       : if set, take targets from raw_responses[:k]
+                            (the T=1.0 draws) instead of the single
+                            low_temp_response, emitting one training pair
+                            per draw. k=1 is the same-temperature control
+                            for k>1; None (default) keeps the T=0.1
+                            behaviour. With k>1 the training set grows
+                            k-fold, so epochs must be divided through if
+                            gradient steps are to be held constant.
     """
     single_prompt = question_idx is not None
     filtered_mode = judged_file is not None
@@ -532,7 +624,13 @@ def run_distillation(
 
         print("\n[1/3] Reading target responses from judged file "
               "(teacher model NOT loaded — nothing to generate)...")
-        teacher_data = build_dataset_from_filtered_questions(judged_file, question_indices)
+        teacher_data = build_dataset_from_filtered_questions(
+            judged_file, question_indices,
+            skip_not_attempted=skip_not_attempted,
+            se_threshold=se_threshold,
+            se_mode=se_mode,
+            abstain_string=abstain_string,
+            raw_samples=raw_samples)
     else:
         print("\n" + "=" * 60)
         print(f"DISTILLATION  (Single-prompt mode, question_idx={question_idx}, "

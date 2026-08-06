@@ -442,16 +442,22 @@ def _load_factscore_bio(num_samples: int) -> list[dict]:
     print(f"  Loaded {len(entities)} FActScore(Bio) labeled entities "
           f"(from {cache_path}).")
  
+    SYSTEM_PROMPT = (
+        "You are given a query from the user asking for information. "
+        "Write the answer in English characters. Output plain text only. "
+        "Do not use formatting styles, symbols, or headings. Each sentence "
+        "should provide different information and must not repeat the same "
+        "content. Output only the final answer to the query. Do not generate "
+        "explanations, reasoning, or commentary for the answer. Do not ask "
+        "follow-up questions. The response must be no more than 200 words "
+        "in total."
+    )
     items = []
     for entity in entities:
-        prompt = (
-            f"Question: Tell me a bio of {entity}. "
-            f"Answer in plain prose, as continuous paragraphs of complete "
-            f"sentences. Do not use headings, bullet points, numbered "
-            f"lists, bold or italic text, or any other formatting."
-        )
+        prompt = f"Tell me about {entity}."
         items.append({
             "prompt": prompt,
+            "system_prompt": SYSTEM_PROMPT,
             "entity": entity,
         })
         if len(items) >= num_samples:

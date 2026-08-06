@@ -10,7 +10,7 @@
 #
 # gen_subset.sh <model_role> <prompt_style> -- Phase 1 generation only
 # (no judging) on the 500-question subset. Output goes to
-# gen_data_subset500/ under $HOME, so no node pinning needed.
+# gen_data_seed44/ under $HOME, so no node pinning needed.
 #
 # Usage:
 #   sbatch gen_subset.sh teacher strict
@@ -21,8 +21,9 @@
 set -e
 set -x
 
-MODEL_ROLE="${1:?Usage: sbatch gen_subset.sh <teacher|student> <strict|fewshot>}"
-PROMPT_STYLE="${2:?Usage: sbatch gen_subset.sh <teacher|student> <strict|fewshot>}"
+MODEL_ROLE="${1:?Usage: sbatch gen_subset.sh <teacher|student> <strict|fewshot> [model_name]}"
+PROMPT_STYLE="${2:?Usage: sbatch gen_subset.sh <teacher|student> <strict|fewshot> [model_name]}"
+MODEL_NAME="${3:-}"   # optional override, e.g. Qwen/Qwen3-32B
 
 if [[ "${MODEL_ROLE}" != "teacher" && "${MODEL_ROLE}" != "student" ]]; then
     echo "ERROR: model_role must be 'teacher' or 'student', got '${MODEL_ROLE}'"
@@ -32,12 +33,16 @@ if [[ "${PROMPT_STYLE}" != "strict" && "${PROMPT_STYLE}" != "fewshot" ]]; then
     echo "ERROR: prompt_style must be 'strict' or 'fewshot', got '${PROMPT_STYLE}'"
     exit 1
 fi
+EXTRA_GEN_ARGS=""
+if [ -n "${MODEL_NAME}" ]; then
+    EXTRA_GEN_ARGS="--model_name ${MODEL_NAME}"
+fi
 
 PROJECT_DIR=~/SimpleQA
 DATASET=simpleqa
 N_HIGH_TEMP_SAMPLES=10
-SUBSET_FILE="${PROJECT_DIR}/subset_500_question_indices.json"
-OUTPUT_DIR="${PROJECT_DIR}/gen_data_subset500"
+SUBSET_FILE="${PROJECT_DIR}/subset_500_seed44_question_indices.json"
+OUTPUT_DIR="${PROJECT_DIR}/gen_data_seed44"
 MANIFEST="${PROJECT_DIR}/logs/experiment_manifest.log"
 
 cd "${PROJECT_DIR}"
@@ -47,9 +52,9 @@ source ~/.bashrc
 conda activate haldist
 
 echo "===== [$(date)] Running on host: $(hostname) ====="
-echo "===== model_role=${MODEL_ROLE} prompt_style=${PROMPT_STYLE} ====="
+echo "===== model_role=${MODEL_ROLE} prompt_style=${PROMPT_STYLE} model_override='${MODEL_NAME}' ====="
 nvidia-smi
-echo "$(date -Iseconds) | job=${SLURM_JOB_ID:-none} | stage=gen_${MODEL_ROLE}_${PROMPT_STYLE} | node=$(hostname)" >> "${MANIFEST}"
+echo "$(date -Iseconds) | job=${SLURM_JOB_ID:-none} | stage=gen_${MODEL_ROLE}_${PROMPT_STYLE} | model=${MODEL_NAME:-default} | node=$(hostname)" >> "${MANIFEST}"
 
 MAX_RETRIES=20
 for attempt in $(seq 1 "${MAX_RETRIES}"); do
@@ -61,7 +66,8 @@ for attempt in $(seq 1 "${MAX_RETRIES}"); do
         --prompt_style "${PROMPT_STYLE}" \
         --question_indices_file "${SUBSET_FILE}" \
         --n_high_temp_samples "${N_HIGH_TEMP_SAMPLES}" \
-        --output_dir "${OUTPUT_DIR}"
+        --output_dir "${OUTPUT_DIR}" \
+        ${EXTRA_GEN_ARGS}
     exit_code=$?
     set -e
 

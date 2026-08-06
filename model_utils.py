@@ -106,14 +106,17 @@ def load_model_and_tokenizer(
         - pad_token is set to eos_token when missing, which is standard for
           Qwen-series models.
     """
-    print(f"  Loading tokenizer : {model_name}")
     tokenizer = AutoTokenizer.from_pretrained(
         model_name,
         trust_remote_code=True,
         padding_side="left",
     )
     if tokenizer.pad_token is None:
-        tokenizer.pad_token = tokenizer.eos_token
+        # Llama 3.1+ ships a dedicated padding token.
+        if "<|finetune_right_pad_id|>" in tokenizer.get_vocab():
+            tokenizer.pad_token = "<|finetune_right_pad_id|>"
+        else:
+            tokenizer.pad_token = tokenizer.eos_token
 
     print(f"  Loading model     : {model_name}  (dtype={torch_dtype}, device_map={device_map!r})")
     model = AutoModelForCausalLM.from_pretrained(

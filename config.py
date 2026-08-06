@@ -13,7 +13,7 @@ class Config:
 
     # ── Models ────────────────────────────────────────────────────────────
     # Main experiment pair (fits on a single A100 40GB):
-    teacher_model_name: str  = "Qwen/Qwen3-14B"
+    teacher_model_name: str  = "Qwen/Qwen3-32B"
     student_model_name: str  = "Qwen/Qwen3-4B-Instruct-2507"
 
     distilled_model_path: str = "./checkpoints/distilled_student"
@@ -38,6 +38,7 @@ class Config:
     max_new_tokens: int              = 200
     warmup_ratio: float              = 0.05
     max_grad_norm: float             = 1.0
+    judge_temperature: float         = 0.1   # entailment/correctness judge; 0 = greedy
 
     # ── Visualization ─────────────────────────────────────────────────────
     output_dir: str = "./figures"
@@ -64,11 +65,11 @@ class Config:
     #             generally more accurate on subtle/close paraphrases per
     #             recent literature. See semantic_utils.py module docstring
     #             for details and how to compare judges.
-    entailment_backend: str = "llm"   # "deberta" | "llm"
+    entailment_backend: str = "deberta"   # "deberta" | "llm"
 
     # Used only when entailment_backend == "llm". Swap this to compare
-    entailment_llm_model_name: str = "Qwen/Qwen2.5-32B-Instruct"
-    decomposition_model_name: str = "Qwen/Qwen2.5-32B-Instruct"
+    entailment_llm_model_name: str = "Qwen/Qwen3-32B"
+    decomposition_model_name: str = "Qwen/Qwen3-32B"
 
     # When True, two responses are merged into the same semantic cluster only if
     # each entails the other (standard semantic entropy protocol). When False,

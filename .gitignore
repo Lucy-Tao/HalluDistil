@@ -95,3 +95,17 @@ data/
 __pycache__/
 *.pyc
 *.bak
+
+# ── Added 2026-08-05 ─────────────────────────────
+gen_data_seed44*/
+judged_data_seed44*/
+gen_data_distilled_seed44*/
+judged_data_distilled_seed44*/
+gen_data_distilled_seed44_noskip/
+gen_longform_data*/
+archive_*/
+factscore_data/
+third_eval/
+nltk_data/
+*.bak*
+*.jsonl

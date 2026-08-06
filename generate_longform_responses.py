@@ -73,7 +73,7 @@ directory, same as where the conda env itself lives.
       --question_idx_subset gen_longform_data/answered_both.jsonl \\
       --output_dir ~/gen_longform
 
-Output file: {output_dir}/gen_factscore_bio_{model_short}[_{run_tag}].jsonl
+Output file: {output_dir}/gen_factscore_bio_{run_tag OR model_short}.jsonl
 Each line: {
     "question_idx": int,
     "entity": str,
@@ -173,10 +173,14 @@ def main():
     max_new_tokens = args.max_new_tokens or cfg.factscore_max_new_tokens
 
     os.makedirs(args.output_dir, exist_ok=True)
-    tag_suffix = f"_{args.run_tag}" if args.run_tag else ""
+    # If run_tag is given (e.g. distilled runs), the filename uses ONLY the
+    # run_tag, since it already uniquely identifies the run -- avoids the
+    # doubled "factscore_bio_..._ep5_distilled_ep5" name. Baseline runs
+    # (teacher/student, no run_tag) fall back to model_short.
+    name_part = args.run_tag if args.run_tag else model_short
     ckpt_path = os.path.join(
         args.output_dir,
-        f"gen_factscore_bio_{model_short}{tag_suffix}.jsonl",
+        f"gen_factscore_bio_{name_part}.jsonl",
     )
 
     print(f"{'='*60}")
@@ -246,14 +250,6 @@ def main():
     with open(ckpt_path, "a", encoding="utf-8") as ckpt_f:
         for question_idx, item in remaining:
             print(f"[{question_idx}] {item['entity']}")
-
-            # temperature=0.1 for now, matching this project's existing
-            # "low-temp" convention for stable single-sample generation
-            # elsewhere in the codebase (SimpleQA's low_temp_response etc.)
-            # — NOT the temp=0.7 FActScore's own authors used when they
-            # generated their InstructGPT/ChatGPT reference bios. Left as
-            # a parameter to revisit once we've seen actual outputs; not
-            # fixed on purpose.
             #
             # stop_sequences=None: sample_responses()'s DEFAULT_STOP_SEQUENCES
             # includes a bare "\n", which is correct for SimpleQA's one-line
@@ -262,9 +258,10 @@ def main():
             # default.
             response = sample_responses(
                 model, tokenizer, item["prompt"],
-                n_samples=1, temperature=0.1,
+                n_samples=1, temperature=0.7,
                 max_new_tokens=max_new_tokens,
                 stop_sequences=None,
+                system_prompt=item.get("system_prompt"),
             )[0]
 
             record = {
