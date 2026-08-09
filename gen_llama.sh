@@ -68,7 +68,6 @@ conda activate haldist
 export HF_HOME=/scratch-ssd/oatml/huggingface
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-export HF_DATASETS_OFFLINE=1
 export HF_DATASETS_CACHE=/scratch-ssd/ms25yt/datasets
 
 echo "===== [$(date)] host=$(hostname) ====="
@@ -127,7 +126,7 @@ fi
 
 echo "$(date -Iseconds) | job=${SLURM_JOB_ID:-none} | stage=gen_llama_${MODEL_ROLE}_${PROMPT_STYLE} | model=${MODEL_NAME} | node=$(hostname)" >> "${MANIFEST}"
 
-MAX_RETRIES=20
+MAX_RETRIES=3
 for attempt in $(seq 1 "${MAX_RETRIES}"); do
     echo "----- Attempt ${attempt}/${MAX_RETRIES} -----"
     set +e
