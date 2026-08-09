@@ -1,6 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=gen_llama
 #SBATCH --partition=msc
+#SBATCH --nodes=1
 #SBATCH --nodelist=oat14
 #SBATCH --gres=gpu:a100:3
 #SBATCH --time=24:00:00
@@ -20,7 +21,7 @@
 #
 # Usage:
 #   sbatch gen_llama.sh student strict
-#   sbatch --gres=gpu:a100:4 gen_llama.sh teacher strict
+#   sbatch gen_llama.sh teacher strict   (3 GPUs, set in the header)
 
 set -e
 set -x
@@ -68,7 +69,6 @@ conda activate haldist
 export HF_HOME=/scratch-ssd/oatml/huggingface
 export HF_HUB_OFFLINE=1
 export TRANSFORMERS_OFFLINE=1
-export HF_DATASETS_CACHE=/scratch-ssd/ms25yt/datasets
 
 echo "===== [$(date)] host=$(hostname) ====="
 echo "===== role=${MODEL_ROLE} style=${PROMPT_STYLE} model=${MODEL_NAME} ====="
