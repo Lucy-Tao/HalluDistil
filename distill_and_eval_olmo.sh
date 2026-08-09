@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=distill_eval_v3
+#SBATCH --job-name=distill_eval_olmo
 #SBATCH --partition=msc
 #SBATCH --gres=gpu:a100:1
 #SBATCH --time=24:00:00
@@ -40,14 +40,19 @@ PROJECT_DIR=~/SimpleQA
 DATASET=simpleqa
 SUBSET_FILE="${PROJECT_DIR}/subset_500_seed44_question_indices.json"
 # Teacher 32B judged file (seed44) — source of low_temp targets.
-JUDGED_TEACHER_FILE="${PROJECT_DIR}/judged_data_seed44_deberta/judged_simpleqa_Qwen3-32B_${PROMPT_STYLE}.jsonl"
+JUDGED_TEACHER_FILE="${PROJECT_DIR}/judged_data_seed44_olmo/judged_simpleqa_OLMo-2-0325-32B-Instruct_${PROMPT_STYLE}.jsonl"
 
 if [ -n "${RUN_TAG}" ]; then
     MODEL_TAG="${PROMPT_STYLE}_lowtemp_seed44_${RUN_TAG}"
 else
     MODEL_TAG="${PROMPT_STYLE}_lowtemp_seed44"
 fi
-STUDENT_SHORT="Qwen3-4B-Instruct-2507"
+# config.py defaults the student to Qwen3-4B, so the OLMo line has to
+# pass --student explicitly. run.py derives distilled_model_path from
+# short_model_name(student) plus model_tag, which matches STUDENT_SHORT
+# below.
+STUDENT_MODEL="allenai/OLMo-2-1124-7B-Instruct"
+STUDENT_SHORT="OLMo-2-1124-7B-Instruct"
 DISTILLED_MODEL_PATH="/scratch-ssd/ms25yt/models/${DATASET}_${STUDENT_SHORT}_student_${MODEL_TAG}"
 JUDGE_MODEL="Qwen/Qwen3-32B"
 GEN_OUTPUT_DIR="${PROJECT_DIR}/gen_data_distilled_seed44"
@@ -68,7 +73,7 @@ conda activate haldist
 # weights. Testing that the directory exists is not enough: a node can
 # have an empty hub/ left behind after a move, or hold an unrelated
 # model, in which case switching hides a complete group cache.
-if ls /scratch-ssd/ms25yt/hf/hub/models--Qwen--Qwen3-4B-Instruct-2507/snapshots/*/*.safetensors >/dev/null 2>&1; then
+if ls /scratch-ssd/ms25yt/hf/hub/models--allenai--OLMo-2-1124-7B-Instruct/snapshots/*/*.safetensors >/dev/null 2>&1; then
     export HF_HOME=/scratch-ssd/ms25yt/hf
 fi
 echo "HF_HOME=${HF_HOME} host=$(hostname)"
@@ -137,6 +142,7 @@ print('NO_RECORD' if last is None else json.dumps(last.get('hyperparameters', {}
 else
     echo "===== [$(date)] STEP 1/3: Full distillation ====="
     python run.py --mode distill \
+        --student "${STUDENT_MODEL}" \
         --judged_file "${JUDGED_TEACHER_FILE}" \
         --model_tag "${MODEL_TAG}" \
         --epochs "${EPOCHS}"

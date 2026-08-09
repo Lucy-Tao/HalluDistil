@@ -27,6 +27,12 @@ PROMPT_STYLE="${1:?Usage: sbatch distill_and_eval_noskip.sh <strict|fewshot> [ru
 RUN_TAG="${2:-}"
 EPOCHS="${3:-3}"
 
+# Judging needs about 66G against 12G for distillation and generation,
+# and SLURM accounts for GPUs without partitioning device memory, so an
+# all-in-one job either hangs during model load or dies partway. Judge
+# separately with judge_se.sh. RUN_JUDGE=1 restores the old behaviour.
+RUN_JUDGE="${RUN_JUDGE:-0}"
+
 if [[ "${PROMPT_STYLE}" != "strict" && "${PROMPT_STYLE}" != "fewshot" ]]; then
     echo "ERROR: prompt_style must be 'strict' or 'fewshot', got '${PROMPT_STYLE}'"
     exit 1
@@ -179,6 +185,12 @@ if [ ! -f "${GEN_FILE}" ]; then
     echo "ERROR: expected generation output not found: ${GEN_FILE}"
     exit 1
 fi
+if [ "${RUN_JUDGE}" != "1" ]; then
+    echo "===== [$(date)] STEP 3/3: SKIPPED, judge separately ====="
+    echo "GEN_FILE=${GEN_FILE}"
+    exit 0
+fi
+
 echo "===== [$(date)] STEP 3/3: Judging (${GEN_FILE}) ====="
 python judge_responses.py \
     --input "${GEN_FILE}" \

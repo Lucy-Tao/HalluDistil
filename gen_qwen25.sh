@@ -62,6 +62,16 @@ export TRANSFORMERS_OFFLINE=1
 echo "===== [$(date)] host=$(hostname) HF_HOME=${HF_HOME} role=${MODEL_ROLE} style=${PROMPT_STYLE} model=${MODEL_NAME} ====="
 nvidia-smi --query-gpu=gpu_bus_id,memory.free,temperature.gpu --format=csv
 
+# A 32B teacher needs about 62G. SLURM accounts for GPUs but does not
+# partition device memory, so another job on the same card can leave
+# too little and the load then dies partway through. Failing here costs
+# seconds instead of minutes and says plainly why.
+GPU_FREE=$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits | head -1)
+if [ "${MODEL_ROLE}" == "teacher" ] && [ "${GPU_FREE}" -lt 68000 ]; then
+    echo "GPU_GATE_FAIL only ${GPU_FREE}MiB free, 32B needs about 65GiB"
+    exit 1
+fi
+
 echo "$(date -Iseconds) | job=${SLURM_JOB_ID:-none} | stage=gen_qwen25_${MODEL_ROLE}_${PROMPT_STYLE} | model=${MODEL_NAME} | node=$(hostname)" >> "${MANIFEST}"
 
 python -u generate_responses.py \
