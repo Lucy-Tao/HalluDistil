@@ -330,6 +330,10 @@ def main():
 
     print(f"Loading model under test ({args.model_role}"
           f"{' [override]' if args.model_name_override else ''}): {test_model_name}")
+    # Pre-bind so that a failure inside load_model_and_tokenizer surfaces
+    # as itself rather than as an UnboundLocalError from the `del` at the
+    # end of the function, which hid the real cause on several runs.
+    test_model = test_tokenizer = None
     test_model, test_tokenizer = load_model_and_tokenizer(test_model_name, device_map=test_device_map)
 
     if qgen_model_name == test_model_name:
