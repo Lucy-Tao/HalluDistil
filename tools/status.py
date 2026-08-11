@@ -228,6 +228,138 @@ def section_failures(proj, limit):
     print("\n    " + ", ".join(f"{v} {k}" for k, v in sorted(counts.items())))
 
 
+def section_history(proj, days, limit):
+    """Reconstruct what was submitted and how it ended.
+
+    Nothing is recorded at submission time. The manifest already carries
+    job id, stage, parameters and node because the submission scripts
+    append to it, and the logs carry the outcome, so the two are joined
+    here rather than maintaining a separate ledger that could drift.
+    """
+    import datetime
+    print("=" * 62)
+    print(f"HISTORY  (last {days} days, most recent {limit})")
+    print("=" * 62)
+
+    man = os.path.join(proj, "logs", "experiment_manifest.log")
+    if not os.path.isfile(man):
+        print("    no manifest")
+        return
+
+    cutoff = datetime.datetime.now().astimezone() - datetime.timedelta(days=days)
+    jobs = {}
+    with open(man, "r", errors="replace") as f:
+        for raw in f:
+            parts = [x.strip() for x in raw.strip().split("|")]
+            if len(parts) < 3:
+                continue
+            try:
+                when = datetime.datetime.fromisoformat(parts[0])
+            except ValueError:
+                continue
+            if when < cutoff:
+                continue
+            fields = {}
+            for p2 in parts[1:]:
+                if "=" in p2:
+                    k, _, v = p2.partition("=")
+                    fields[k.strip()] = v.strip()
+            jid = fields.get("job")
+            if not jid or jid == "none":
+                continue
+            rec = jobs.setdefault(jid, {"first": when, "last": when,
+                                        "stages": [], "node": "", "desc": ""})
+            rec["last"] = when
+            st = fields.get("stage", "")
+            if st:
+                rec["stages"].append(st)
+            if fields.get("node"):
+                rec["node"] = fields["node"].split(".")[0]
+            # Keep the most descriptive parameter set seen for this job.
+            bits = [f"{k}={fields[k]}" for k in
+                    ("style", "prompt_style", "level", "mode", "raw_samples",
+                     "epochs", "tag", "model") if k in fields]
+            if bits and len(" ".join(bits)) > len(rec["desc"]):
+                rec["desc"] = " ".join(bits)
+
+    # Outcome comes from the logs, using the same rule as the failures
+    # section: success markers first, because a retry loop can print a
+    # traceback and still finish.
+    logdir = os.path.join(proj, "logs")
+    by_jid = defaultdict(list)
+    if os.path.isdir(logdir):
+        for f in os.listdir(logdir):
+            if not (f.endswith(".out") or f.endswith(".err")):
+                continue
+            m = re.search(r"_(\d+)(?:_\d+)?\.(out|err)$", f)
+            if m:
+                by_jid[m.group(1)].append(os.path.join(logdir, f))
+
+    succ = re.compile("|".join(SUCCESS_MARKERS))
+
+    # Array tasks complicate this. The manifest records SLURM_JOB_ID,
+    # which for an array task is the individual task id, while the log
+    # file is named after the parent array id plus a task index. Exact
+    # matching therefore misses them, so fall back to searching log
+    # contents for the job id the manifest recorded.
+    _content_cache = {}
+
+    def logs_mentioning(jid):
+        hits = []
+        if not os.path.isdir(logdir):
+            return hits
+        for f in sorted(os.listdir(logdir), reverse=True)[:400]:
+            if not f.endswith(".out"):
+                continue
+            fp = os.path.join(logdir, f)
+            if fp not in _content_cache:
+                try:
+                    with open(fp, "r", errors="replace") as fh:
+                        _content_cache[fp] = fh.read(200000)
+                except OSError:
+                    _content_cache[fp] = ""
+            if f"job={jid}" in _content_cache[fp]:
+                hits.append(fp)
+                err = fp[:-4] + ".err"
+                if os.path.isfile(err):
+                    hits.append(err)
+                break
+        return hits
+
+    def outcome(jid):
+        text = ""
+        paths = by_jid.get(jid) or logs_mentioning(jid)
+        for p3 in paths:
+            try:
+                with open(p3, "r", errors="replace") as fh:
+                    text += fh.read()
+            except OSError:
+                pass
+        if not text:
+            # Array tasks record their own SLURM_JOB_ID in the manifest
+            # while the log is named after the parent array id, so the
+            # two do not line up. Completion for these is better read
+            # from the judged file counts than from here.
+            return "array task, see COMPLETE"
+        if succ.search(text):
+            return "done"
+        for pat, desc in FAILURE_PATTERNS:
+            if re.search(pat, text, re.M):
+                return desc
+        return "running or unknown"
+
+    rows = sorted(jobs.items(), key=lambda kv: kv[1]["first"], reverse=True)
+    print(f"    {'JOBID':<9} {'WHEN':<12} {'NODE':<7} {'OUTCOME':<34} PARAMS")
+    for jid, r in rows[:limit]:
+        stage = r["stages"][0] if r["stages"] else ""
+        desc = r["desc"] or stage
+        line = (f"    {jid:<9} {r['first'].strftime('%m-%d %H:%M'):<12} "
+                f"{r['node']:<7} {outcome(jid):<34} {desc[:60]}")
+        print("".join(c for c in line if c.isprintable()))
+    if len(rows) > limit:
+        print(f"\n    {len(rows) - limit} older entries hidden, raise --history-limit")
+
+
 def section_queue():
     print("=" * 62)
     print("QUEUE")
@@ -253,7 +385,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--project", default=os.path.expanduser("~/SimpleQA"))
     ap.add_argument("--only", choices=["complete", "pending-judge",
-                                       "failures", "queue"])
+                                       "failures", "queue", "history"])
+    ap.add_argument("--history-days", type=int, default=3)
+    ap.add_argument("--history-limit", type=int, default=40)
     ap.add_argument("--log-window", type=int, default=40,
                     help="how many recent logs to scan for outcomes")
     args = ap.parse_args()
@@ -271,6 +405,9 @@ def main():
         print()
     if want in (None, "failures"):
         section_failures(proj, args.log_window)
+        print()
+    if want == "history":
+        section_history(proj, args.history_days, args.history_limit)
         print()
     if want in (None, "queue"):
         section_queue()
