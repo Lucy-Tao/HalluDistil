@@ -1,2 +1,0 @@
-fewshot ep10 10
-fewshot ep15 15

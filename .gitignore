@@ -109,3 +109,7 @@ third_eval/
 nltk_data/
 *.bak*
 *.jsonl
+
+# Job array queue files, generated per submission batch
+q_*.txt
+se_queue.txt

@@ -1,2 +1,0 @@
-strict ep2 2
-fewshot ep2 2
