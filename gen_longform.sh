@@ -27,6 +27,15 @@ if [ "${MODEL_ROLE}" != "teacher" ] && [ "${MODEL_ROLE}" != "student" ]; then
     exit 1
 fi
 
+# Optional second argument overrides cfg.teacher_model_name or
+# cfg.student_model_name, both of which are hardcoded to Qwen3. Needed
+# for the Qwen2.5 and OLMo lines.
+MODEL_NAME_OVERRIDE="${2:-}"
+MODEL_NAME_FLAG=""
+if [ -n "${MODEL_NAME_OVERRIDE}" ]; then
+    MODEL_NAME_FLAG="--model_name ${MODEL_NAME_OVERRIDE}"
+fi
+
 PROJECT_DIR=~/SimpleQA
 OUTPUT_DIR="${PROJECT_DIR}/gen_longform_data"
 SUBSET="${OUTPUT_DIR}/sampled_100_entities.jsonl"
@@ -49,6 +58,7 @@ for attempt in $(seq 1 "${MAX_RETRIES}"); do
     set +e
     python generate_longform_responses.py \
         --model_role "${MODEL_ROLE}" \
+        ${MODEL_NAME_FLAG} \
         --question_idx_subset "${SUBSET}" \
         --output_dir "${OUTPUT_DIR}"
     exit_code=$?

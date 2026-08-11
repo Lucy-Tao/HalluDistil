@@ -1,0 +1,3 @@
+strict ep2 2
+strict ep5 5
+strict ep10 10

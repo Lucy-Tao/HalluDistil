@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=distill_eval_olmo
+#SBATCH --job-name=distill_eval_q25
 #SBATCH --partition=msc
 #SBATCH --gres=gpu:a100:1
 #SBATCH --time=24:00:00
@@ -40,23 +40,22 @@ PROJECT_DIR=~/SimpleQA
 DATASET=simpleqa
 SUBSET_FILE="${PROJECT_DIR}/subset_500_seed44_question_indices.json"
 # Teacher 32B judged file (seed44) — source of low_temp targets.
-JUDGED_TEACHER_FILE="${PROJECT_DIR}/judged_data_seed44_olmo/judged_simpleqa_OLMo-2-0325-32B-Instruct_${PROMPT_STYLE}.jsonl"
+JUDGED_TEACHER_FILE="${PROJECT_DIR}/judged_data_seed44_qwen25/judged_simpleqa_Qwen2.5-32B-Instruct_${PROMPT_STYLE}.jsonl"
 
 if [ -n "${RUN_TAG}" ]; then
     MODEL_TAG="${PROMPT_STYLE}_lowtemp_seed44_${RUN_TAG}"
 else
     MODEL_TAG="${PROMPT_STYLE}_lowtemp_seed44"
 fi
-# config.py defaults the student to Qwen3-4B, so the OLMo line has to
-# pass --student explicitly. run.py derives distilled_model_path from
-# short_model_name(student) plus model_tag, which matches STUDENT_SHORT
-# below.
-STUDENT_MODEL="allenai/OLMo-2-1124-7B-Instruct"
-STUDENT_SHORT="OLMo-2-1124-7B-Instruct"
+# config.py defaults the student to Qwen3-4B, so this line passes
+# --student explicitly. run.py derives distilled_model_path from
+# short_model_name(student) plus model_tag, matching STUDENT_SHORT.
+STUDENT_MODEL="Qwen/Qwen2.5-3B-Instruct"
+STUDENT_SHORT="Qwen2.5-3B-Instruct"
 DISTILLED_MODEL_PATH="/scratch-ssd/ms25yt/models/${DATASET}_${STUDENT_SHORT}_student_${MODEL_TAG}"
 JUDGE_MODEL="Qwen/Qwen3-32B"
-GEN_OUTPUT_DIR="${PROJECT_DIR}/gen_data_distilled_seed44_olmo"
-JUDGED_OUTPUT_DIR="${PROJECT_DIR}/judged_data_distilled_seed44_olmo"
+GEN_OUTPUT_DIR="${PROJECT_DIR}/gen_data_distilled_seed44_qwen25"
+JUDGED_OUTPUT_DIR="${PROJECT_DIR}/judged_data_distilled_seed44_qwen25"
 MANIFEST="${PROJECT_DIR}/logs/experiment_manifest.log"
 HYPERPARAM_LOG="${PROJECT_DIR}/logs/hyperparameter_log.jsonl"
 
@@ -73,7 +72,7 @@ conda activate haldist
 # weights. Testing that the directory exists is not enough: a node can
 # have an empty hub/ left behind after a move, or hold an unrelated
 # model, in which case switching hides a complete group cache.
-if ls /scratch-ssd/ms25yt/hf/hub/models--allenai--OLMo-2-1124-7B-Instruct/snapshots/*/*.safetensors >/dev/null 2>&1; then
+if ls /scratch-ssd/ms25yt/hf/hub/models--Qwen--Qwen2.5-3B-Instruct/snapshots/*/*.safetensors >/dev/null 2>&1; then
     export HF_HOME=/scratch-ssd/ms25yt/hf
 fi
 echo "HF_HOME=${HF_HOME} host=$(hostname)"
